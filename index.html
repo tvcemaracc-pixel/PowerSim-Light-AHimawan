@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SuperSim PowerSim Style — Andri</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#07110d;--panel:#0d1b15;--panel2:#10231b;--line:#234535;--text:#e9fff4;--muted:#9bb9aa;--green:#20c77a;--green2:#0e8f56;--red:#ef6262;--blue:#55a8ff;--yellow:#e8c65b}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#06100c,#0b1712 55%,#07110d);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+header{padding:18px 24px;border-bottom:1px solid var(--line);background:#091610ee;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:22px}.sub{color:var(--muted);font-size:12px;margin-top:5px}
+nav{display:flex;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line);background:#08130f;position:sticky;top:73px;z-index:4;overflow:auto}
+nav button,.btn{border:1px solid var(--line);background:#10221a;color:var(--text);padding:9px 12px;border-radius:9px;cursor:pointer;font-weight:600}
+nav button.active{background:var(--green2);border-color:var(--green);color:#fff}
+main{max-width:1400px;margin:auto;padding:18px}.tab{display:none}.tab.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:linear-gradient(180deg,#0e1d16,#0b1813);border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:0 10px 30px #0003}.span12{grid-column:span 12}.span8{grid-column:span 8}.span6{grid-column:span 6}.span4{grid-column:span 4}.span3{grid-column:span 3}
+label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}input,select,textarea{width:100%;background:#07120e;color:var(--text);border:1px solid #2b4b3c;border-radius:8px;padding:9px}textarea{min-height:130px;resize:vertical}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.row3{grid-template-columns:repeat(3,1fr)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.primary{background:var(--green2);border-color:var(--green)}.danger{background:#421b1b;border-color:#8c3e3e}.blue{background:#12314e;border-color:#2d78b8}
+.note{font-size:12px;color:var(--muted);padding:9px 11px;border-left:3px solid var(--green);background:#0b2118;border-radius:6px;margin:9px 0}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.kpi{padding:12px;border:1px solid var(--line);border-radius:10px;background:#0a1711}.kpi b{display:block;font-size:20px;margin-top:5px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid #203b2e;text-align:right}th:first-child,td:first-child{text-align:left}th{color:#bfe8d2;background:#0b1c14;position:sticky;top:0}
+.tablewrap{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:9px}
+canvas{background:#f7faf8;border-radius:10px;padding:6px;width:100%!important;max-height:470px}
+.diagram{position:relative;height:470px;background:radial-gradient(circle at center,#11271d,#08130f);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.diagram svg{position:absolute;inset:0;width:100%;height:100%}.node{position:absolute;min-width:145px;text-align:center;padding:12px 14px;border:1px solid #4b8066;background:#0d2118;border-radius:8px;box-shadow:0 8px 20px #0005}.stock{border:2px solid #7bc79f;background:#112b1e}.flow{border-radius:50%;width:92px;height:92px;min-width:0;display:flex;align-items:center;justify-content:center;border:2px solid #74a6ff;background:#11213a}.aux{border-radius:50%;min-width:145px;border-color:#8c8c8c;background:#1c1e20}.node small{display:block;color:#9fb9aa;margin-top:4px}.stockN{left:40%;top:42%}.flowN{left:17%;top:41%}.birthN{left:68%;top:22%}.deathN{left:68%;top:60%}.growthN{left:38%;top:12%}.densityN{left:39%;top:75%}.areaN{left:10%;top:72%}
+.eq{font-family:Consolas,monospace;background:#06100c;border:1px solid #244535;padding:10px;border-radius:8px;margin:6px 0;color:#c9f4da;white-space:pre-wrap}.audit-ok{border-left:4px solid var(--green);padding:10px;background:#092017;border-radius:7px;margin:7px 0}.audit-warn{border-left:4px solid var(--yellow);padding:10px;background:#211d09;border-radius:7px;margin:7px 0}.flowchain{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:18px}.chainbox{padding:12px 15px;border:1px solid #4b8066;border-radius:9px;background:#0d2118;text-align:center;min-width:125px}.chainarrow{font-size:22px;color:#9bd4b0}
+.scenario{border:1px solid var(--line);border-radius:10px;padding:10px;background:#0a1711}.scenario h4{margin:0 0 8px}.scenario .row{grid-template-columns:repeat(3,1fr)}
+.footer{color:#769080;font-size:11px;margin-top:20px;text-align:center}
+@media(max-width:900px){.span8,.span6,.span4,.span3{grid-column:span 12}.row,.row3,.kpis{grid-template-columns:1fr 1fr}.diagram{height:620px}.stockN{left:35%}.flowN{left:4%}.birthN{left:58%}.deathN{left:58%}.growthN{left:33%}.densityN{left:32%}.areaN{left:3%}}
+
+.sfd-wrap{width:100%;overflow:auto;background:#06100c;border:1px solid #244535;border-radius:12px;padding:8px}
+#sfdSvg{display:block;width:100%;min-width:920px;height:auto;min-height:570px;background:radial-gradient(circle at 50% 45%,#0d2118,#06100c 72%)}
+.sfd-title{fill:#dff7e8;font-size:23px;font-weight:800;letter-spacing:1px}
+.sfd-stock{fill:#10271c;stroke:#9bd4b0;stroke-width:3}
+.sfd-stock-text{fill:#effff4;font-size:20px;font-weight:800}
+.sfd-aux{fill:#0d2118;stroke:#78b88f;stroke-width:2.5}
+.sfd-delay-node{fill:#171d13;stroke:#d6b86a;stroke-width:2.5}
+.sfd-cloud{fill:#0c1b13;stroke:#9bd4b0;stroke-width:2}
+.sfd-flow{stroke:#9bd4b0;stroke-width:4;fill:none}
+.sfd-info{stroke:#d6b86a;stroke-width:2;fill:none}
+.sfd-valve{fill:#122a1d;stroke:#9bd4b0;stroke-width:2}
+.sfd-label{fill:#dcefe3;font-size:14px;font-weight:650}
+.sfd-small{fill:#c5dfcd;font-size:13px;font-weight:600}
+.sfd-delay{fill:#e0c873;font-size:12px;font-weight:700}
+.sfd-legend{fill:#0a1810;stroke:#244535;stroke-width:1}
+.sfd-legend-text{fill:#cfe8d6;font-size:13px}
+
+/* ===== 3 MODEL EXTENSION ===== */
+.modelnav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.modelnav button{border:1px solid var(--line);background:#10221a;color:var(--text);padding:10px 14px;border-radius:9px;cursor:pointer;font-weight:700}
+.modelnav button.active{background:var(--green2);border-color:var(--green)}
+.mtab{display:none}.mtab.active{display:block}
+.formgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.formgrid>div{min-width:0}
+.resultbox{background:#06100c;border:1px solid #244535;border-radius:9px;padding:10px;overflow:auto}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#12314e;border:1px solid #2d78b8;font-size:11px}
+.warn{border-left:4px solid var(--yellow);padding:10px;background:#211d09;border-radius:7px}
+.good{border-left:4px solid var(--green);padding:10px;background:#092017;border-radius:7px}
+@media(max-width:900px){.formgrid{grid-template-columns:1fr 1fr}}
+
+
+.model-svg{width:100%;height:430px;background:#f7faf8;border-radius:10px;display:block}
+.model-svg text{font-family:Arial,sans-serif;fill:#183326}
+.model-svg .axis{stroke:#547064;stroke-width:1}
+.model-svg .gridline{stroke:#c8d7cf;stroke-width:1}
+.model-svg .line1{fill:none;stroke:#168c59;stroke-width:3}
+.model-svg .line2{fill:none;stroke:#2d78b8;stroke-width:3}
+.model-svg .line3{fill:none;stroke:#c58a20;stroke-width:3}
+.model-svg .legend{font-size:12px;font-weight:700}
+.model-status{margin-top:10px;padding:10px;border:1px solid #2b6b4d;background:#092017;border-radius:8px}
+
+
+/* ===== POWERSIM FUNCTION LAB ===== */
+.func-lab{margin-top:14px}
+.func-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.func-card{background:#0a1711;border:1px solid var(--line);border-radius:10px;padding:12px}
+.func-card h4{margin:0 0 7px;color:#bfe8d2}
+.func-card code{font-family:Consolas,monospace;color:#d9f7e4;font-size:12px}
+.func-tag{display:inline-block;margin:3px 4px 3px 0;padding:5px 8px;border:1px solid #315b47;border-radius:999px;background:#0d2118;font-size:11px}
+.func-test-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.func-output{min-height:48px;background:#06100c;border:1px solid #244535;border-radius:8px;padding:10px;font-family:Consolas,monospace;color:#d9f7e4}
+.func-table{max-height:250px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+@media(max-width:900px){.func-grid,.func-test-grid{grid-template-columns:1fr 1fr}}
+
+
+.analysis-route{display:grid;grid-template-columns:1fr;gap:8px}.analysis-step{padding:10px 12px;border:1px solid #315b47;border-radius:9px;background:#0a1711}.analysis-step b{color:#d9f7e4}.analysis-step .arrow{color:#9bd4b0;margin:0 6px}.analysis-step.active{border-color:#20c77a;background:#092017}.analysis-step.off{opacity:.55}
+</style>
+</head>
+<body>
+<header>
+<h1>⚙️ SuperSim PowerSim Style — Andri&nbsp;&nbsp;_L2011261001</h1>
+<div class="sub">Browser-based system dynamics: Story → CLD → SFD → IF → STEP → Delay → Simulation → Graph → Export</div>
+</header>
+<nav>
+<button class="active" onclick="tab('story',this)">1. CERITA</button>
+<button onclick="tab('cld',this)">2. CLD</button>
+<button onclick="tab('sfd',this)">3. SFD</button>
+<button onclick="tab('sim',this)">4. SIMULASI</button>
+<button onclick="tab('graph',this)">5. GRAPH</button>
+<button onclick="tab('export',this)">6. EXPORT</button>
+<button onclick="tab('models',this)">7. 3 MODEL</button>
+<button onclick="tab('excel',this)">7. DATA EXCEL</button>
+</nav>
+<main>
+
+<section id="story" class="tab active">
+<div class="grid">
+<div class="card span8"><h3>🧠 Cerita / Masalah</h3>
+<textarea id="storyText">Kabupaten A memiliki penduduk sebanyak 300.000 jiwa pada tahun 2024. Selama 2024-2035, penduduk tumbuh 2% per tahun. Mulai tahun 2036, kebijakan kependudukan dan perubahan demografi menurunkan laju pertumbuhan menjadi 0,95% per tahun. Kebutuhan beras dihitung dari jumlah penduduk dikalikan konsumsi beras per kapita. Konsumsi per kapita mengikuti data tabel melalui fungsi GRAPH. Pemerintah daerah menyesuaikan produksi beras dengan kebutuhan plus cadangan 5%, namun realisasi produksi baru tercapai setelah keterlambatan 2 tahun. Produksi awal 28.200 ton/tahun. Simulasi dilakukan dari tahun 2024 sampai 2050 dengan time step 1 tahun.</textarea>
+<div class="note">🔄 Setiap kali cerita diubah, klik <b>Bentuk CLD + SFD</b>. Sistem akan membaca cerita TERKINI dan menyinkronkan parameter, CLD, SFD, Simulasi, dan 7.3 — bukan memakai cerita lama.</div><div class="actions"><button class="btn primary" onclick="buildModel()">🧠 Bentuk CLD + SFD</button><button class="btn danger" onclick="clearStory()">🗑️ Hapus Cerita</button></div>
+</div>
+<div class="card span4"><h3>📌 Cara Kerja</h3>
+<div class="note">SuperSim membaca struktur masalah, lalu membentuk model contoh pertumbuhan penduduk.</div>
+<div class="eq">Stock = Jumlah Penduduk</div>
+<div class="eq">Flow = Pertambahan Penduduk</div>
+<div class="eq">Auxiliary = Laju Lahir, Laju Mati</div>
+<div class="eq">Population' = Births − Deaths</div>
+</div>
+<div class="card span12"><h3>🧭 Peta Model</h3><div class="kpis" id="storyKpi"></div></div>
+<div class="card span12"><h3>🧠 Mesin Pemilihan Analisis</h3>
+<div class="note">SuperSim membaca struktur Deskripsi TERKINI lalu menentukan mesin analisis yang relevan. Modul yang tidak relevan tidak dipaksakan muncul sebagai hasil.</div>
+<div id="analysisDecision" class="eq">Masukkan deskripsi lalu klik Bentuk CLD + SFD.</div>
+</div>
+</div>
+</section>
+
+<section id="cld" class="tab">
+<div class="grid">
+<div class="card span8"><h3>🔁 Causal Loop Diagram (CLD)</h3>
+<div class="diagram">
+<svg viewBox="0 0 1000 470" preserveAspectRatio="none">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#8bc8a5"/></marker></defs>
+<path d="M510 235 C650 180 720 135 760 110" fill="none" stroke="#8bc8a5" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M510 235 C650 280 720 320 760 350" fill="none" stroke="#ef8a8a" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M760 110 C900 130 900 220 530 235" fill="none" stroke="#8bc8a5" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M760 350 C900 330 900 245 530 235" fill="none" stroke="#ef8a8a" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M470 235 C390 170 320 120 270 95" fill="none" stroke="#8bc8a5" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M270 95 C360 170 420 205 480 225" fill="none" stroke="#8bc8a5" stroke-width="2" marker-end="url(#arrow)"/>
+</svg>
+<div class="node stock stockN" id="cldStock">JUMLAH PENDUDUK<small>Stock</small></div>
+<div class="node flow flowN" id="cldFlow">PERTAMBAHAN<br>PENDUDUK<small>Flow</small></div>
+<div class="node aux birthN" id="cldBirth">LAJU PERTUMBUHAN<small>Auxiliary</small></div>
+<div class="node aux deathN" id="cldDeath">PERUBAHAN DEMOGRAFI<small>Auxiliary</small></div>
+<div class="node aux growthN" id="cldGrowth">TINGKAT PERTUMBUHAN<small>Auxiliary</small></div>
+<div class="node aux densityN" id="cldDensity">KEBUTUHAN BERAS<small>Auxiliary</small></div>
+<div class="node aux areaN" id="cldArea">KONSUMSI PER KAPITA<small>Parameter</small></div>
+</div>
+</div>
+<div class="card span4"><h3>🔍 Interpretasi CLD</h3>
+<div class="eq">Penduduk ↑ → Kelahiran ↑ → Penduduk ↑</div>
+<div class="eq">Penduduk ↑ → Kematian ↑ → Penduduk ↓</div>
+<div class="eq">Penduduk / Luas Wilayah → Kepadatan</div>
+<div class="note">Loop pertumbuhan penduduk bersifat reinforcing karena lebih banyak penduduk menghasilkan lebih banyak kelahiran ketika birth rate konstan.</div>
+</div>
+</div>
+</section>
+
+<section id="sfd" class="tab">
+<div class="grid">
+<div class="card span12">
+<h3>🧱 SFD — PowerSim Style</h3>
+<p class="muted">Struktur SFD mengikuti pola pada diagram PowerSim: <b>Stock = kotak</b>, <b>Flow = pipa/katup</b>, <b>Auxiliary = lingkaran</b>, <b>Cloud = source/sink</b>, dan <b>information link = garis pengaruh</b>.</p>
+<div class="sfd-wrap">
+<svg id="sfdSvg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet" aria-label="Stock Flow Diagram"></svg>
+</div>
+</div>
+
+<div class="card span6"><h3>🔗 Struktur Delay Material</h3>
+<div class="eq">Migrasi Direncanakan → DELAYMTR-1 → DELAYMTR-2 → DELAYMTR-3 → DELAYMTR → PENDUDUK_AKTUAL</div>
+<p class="muted">Orde 3 ditampilkan sebagai tiga tahap delay agar struktur model dapat diaudit secara visual.</p>
+</div>
+<div class="card span6"><h3>🔗 Struktur Delay Informasi</h3>
+<div class="eq">PENDUDUK_AKTUAL → DELAYINF-1 → DELAYINF-2 → DELAYINF → KELAHIRAN / KEMATIAN</div>
+<p class="muted">Orde 2 ditampilkan sebagai dua tahap delay informasi.</p>
+</div>
+</div>
+</section>
+
+<section id="sim" class="tab">
+<div class="grid">
+<div class="card span8"><h3>⚙️ Parameter Simulasi + Function Engine</h3>
+<div class="row">
+<div><label>Penduduk Awal (2024)</label><input id="pop0" type="number" value="500000"></div>
+<div><label>Tahun Awal</label><input id="year0" type="number" value="2024"></div>
+<div><label>Tahun Akhir</label><input id="year1" type="number" value="2050"></div>
+<div><label>STEP integrasi (dt)</label><input id="dt" type="number" value="1" step="0.1" min="0.01"></div>
+</div>
+<div class="row" style="margin-top:9px">
+<div><label>Tingkat Kelahiran % / tahun</label><input id="br0" type="number" value="1.8" step="0.0001"></div>
+<div><label>Tingkat Kematian % / tahun</label><input id="dr0" type="number" value="0.7" step="0.0001"></div>
+<div><label>Luas Wilayah km²</label><input id="area" type="number" value="10000"></div>
+<div><label>Migrasi Direncanakan (jiwa/tahun)</label><input id="migration" type="number" value="14000"></div>
+<div><label>Metric Graph</label><select id="metric"><option value="pop">Populasi</option><option value="birth">Kelahiran</option><option value="death">Kematian</option><option value="migration">Migrasi</option><option value="net">Pertumbuhan Bersih</option><option value="growth">Laju Pertumbuhan %</option><option value="density">Kepadatan</option><option value="delayed">Flow Tertunda</option></select></div>
+</div>
+<div class="card" style="margin-top:12px;background:#0a1711">
+<h3 style="margin-top:0">🧩 Fungsi System Dynamics</h3>
+<div class="row">
+<div><label>IF threshold populasi</label><input id="ifThreshold" type="number" value="5000000"></div>
+<div><label>IF true: faktor kelahiran</label><input id="ifTrue" type="number" value="0.80" step="0.05"></div>
+<div><label>IF false: faktor kelahiran</label><input id="ifFalse" type="number" value="1.00" step="0.05"></div>
+<div><label>Aktifkan IF</label><select id="ifOn"><option value="yes">Ya</option><option value="no">Tidak</option></select></div>
+</div>
+<div class="row" style="margin-top:9px">
+<div><label>STEP Function: nilai tambahan flow</label><input id="stepValue" type="number" value="0"></div>
+<div><label>STEP Function: mulai tahun</label><input id="stepTime" type="number" value="2030"></div>
+<div><label>Delay type</label><select id="delayType"><option value="none">Tanpa Delay</option><option value="information">Information Delay (DELAY1)</option><option value="material">Material Delay (DELAY1)</option></select></div>
+<div><label>Delay time / tau</label><input id="infoTau" type="number" value="3" step="0.1" min="0.01"></div>
+</div>
+<div class="row" style="margin-top:9px">
+<div><label>DELAYMTR / tau (tahun)</label><input id="materialTau" type="number" value="2" step="0.1" min="0.01"></div><div><label>DELAYMTR — orde n</label><input id="materialOrder" type="number" value="3" min="1" step="1"></div>
+<div><label>Initial DELAYMTR</label><input id="materialInitial" type="number" value="0"></div>
+<div><label>DELAYINF — orde n</label><input id="informationOrder" type="number" value="2" min="1" step="1"></div>
+<div><label>Initial DELAYINF</label><input id="informationInitial" type="number" value="500000"></div>
+</div>
+<div class="note">Baseline tugas: Penduduk awal 500.000; kelahiran 1,8%; kematian 0,7%; migrasi 14.000 jiwa/tahun; DELAYMTR orde 3 dengan initial 0 dan tau 2 tahun; DELAYINF orde 2 dengan initial 500.000 dan tau 3 tahun. IF dan STEP tetap tersedia sebagai fungsi tambahan.</div>
+<div class="eq">IF(Population ≥ Threshold, BirthRate×TrueFactor, BirthRate×FalseFactor)</div>
+<div class="eq">STEP(t) = 0 jika t &lt; StartTime; STEP(t) = StepValue jika t ≥ StartTime</div>
+<div class="eq">DELAY1(x, τ) = delayed + (x − delayed) × dt / τ</div>
+</div>
+<div class="actions"><button class="btn primary" onclick="runAll()">▶ RUN MODEL</button><button class="btn danger" onclick="resetAll()">🗑️ Reset Model / Kembali Nol</button></div>
+</div>
+<div class="card span4"><h3>📐 Variabel Model</h3>
+<table><tr><th>Variabel</th><th>Jenis</th></tr>
+<tr><td>Jumlah Penduduk</td><td>Stock</td></tr>
+<tr><td>Pertambahan Penduduk</td><td>Flow</td></tr>
+<tr><td>Kelahiran</td><td>Flow</td></tr>
+<tr><td>Kematian</td><td>Flow</td></tr>
+<tr><td>Migrasi</td><td>Flow</td></tr>
+<tr><td>DELAYMTR</td><td>Delay Material</td></tr>
+<tr><td>DELAYINF</td><td>Delay Informasi</td></tr>
+<tr><td>IF</td><td>Function</td></tr>
+<tr><td>STEP Function</td><td>Function</td></tr>
+<tr><td>Delay / DELAY1</td><td>Function</td></tr>
+<tr><td>Laju Kelahiran</td><td>Parameter</td></tr>
+<tr><td>Laju Kematian</td><td>Parameter</td></tr>
+<tr><td>Kepadatan</td><td>Auxiliary</td></tr>
+</table>
+</div>
+<div class="card span12"><h3>🔎 Audit Model</h3><div id="modelAudit"></div></div><div class="card span12"><h3>📋 Hasil Simulasi</h3><div id="simKpi" class="kpis"></div><div class="tablewrap"><table id="simTable"></table></div></div>
+</div></section>
+
+<section id="graph" class="tab">
+<div class="grid">
+<div class="card span8"><h3>📈 Graph Simulation — gaya PowerSim</h3>
+<div class="note">Tidak ada input data Graph terpisah. Graph mengambil data langsung dari hasil RUN.</div>
+<div class="row3">
+<div><label>Metric</label><select id="graphMetric" onchange="renderGraph()"><option value="pop">Populasi</option><option value="birth">Kelahiran</option><option value="death">Kematian</option><option value="migration">Migrasi</option><option value="net">Pertumbuhan Bersih</option><option value="growth">Laju Pertumbuhan %</option><option value="density">Kepadatan</option><option value="delayinf">DELAYINF</option><option value="delaymtr">DELAYMTR</option></select></div>
+<div><label>Scenario</label><select id="graphScenario"><option value="all">Semua Skenario</option><option value="base">Baseline</option><option value="fp">Family Planning</option><option value="high">High Growth</option></select></div>
+<div><label>Gaya tampilan</label><select id="graphType" onchange="renderGraph()"><option value="line">Line</option><option value="bar">Bar</option></select></div>
+</div>
+<div class="actions"><button class="btn primary" onclick="renderGraph()">🔄 Tampilkan Graph</button><button class="btn" onclick="exportPNG()">🖼️ PNG</button><button class="btn blue" onclick="exportPDFGraph()">📄 PDF Graph</button><button class="btn danger" onclick="deleteGraph()">🗑️ Hapus Graph</button></div>
+<canvas id="graphCanvas"></canvas>
+</div>
+<div class="card span4"><h3>📊 Multi-Scenario</h3>
+<div class="scenario"><h4>Baseline</h4><div class="row"><div><label>Lahir %</label><input id="sbr_base" value="2.5022"></div><div><label>Mati %</label><input id="sdr_base" value="0.5106"></div><div><label>Nama</label><input value="Baseline" disabled></div></div></div>
+<div class="scenario" style="margin-top:8px"><h4>Family Planning</h4><div class="row"><div><label>Lahir %</label><input id="sbr_fp" value="1.8"></div><div><label>Mati %</label><input id="sdr_fp" value="0.5106"></div><div><label>Nama</label><input value="Family Planning" disabled></div></div></div>
+<div class="scenario" style="margin-top:8px"><h4>High Growth</h4><div class="row"><div><label>Lahir %</label><input id="sbr_high" value="3"></div><div><label>Mati %</label><input id="sdr_high" value="0.5106"></div><div><label>Nama</label><input value="High Growth" disabled></div></div></div>
+<div class="actions"><button class="btn primary" onclick="runScenarios()">▶ RUN 3 SCENARIO</button></div>
+</div>
+</div>
+</section>
+
+<section id="export" class="tab">
+<div class="grid">
+<div class="card span12"><h3>📤 Export Semua Hasil Model</h3>
+<div class="note">Menu Export berlaku untuk seluruh hasil SuperSim: cerita, CLD, SFD, parameter, persamaan, tabel simulasi, scenario, dan graph. Tidak hanya graph.</div>
+<div class="actions">
+<button class="btn primary" onclick="exportFullCSV()">⬇️ CSV Lengkap</button>
+<button class="btn" onclick="exportFullTXT()">📄 TXT Model Lengkap</button>
+<button class="btn blue" onclick="exportFullPDF()">📘 PDF Model Lengkap</button>
+<button class="btn" onclick="exportPNG()">🖼️ PNG Graph</button>
+<button class="btn blue" onclick="exportPDFGraph()">📈 PDF Graph</button>
+<button class="btn" onclick="copyFullModel()">📋 Copy Semua</button>
+</div>
+</div>
+<div class="card span6"><h3>📋 Isi Export</h3>
+<div class="eq">1. Cerita / Problem Statement<br>2. CLD<br>3. SFD<br>4. Stock, Flow, Auxiliary, Parameter<br>5. Parameter Simulasi<br>6. Persamaan Model<br>7. Tabel Simulasi<br>8. Multi-Scenario<br>9. Graph / pilihan metric</div>
+</div>
+<div class="card span6"><h3>📝 Persamaan Model</h3>
+<div id="exportText" class="eq">RUN model terlebih dahulu.</div>
+<div class="actions"><button class="btn" onclick="copyEquations()">📋 Copy Persamaan</button></div>
+</div>
+</div>
+</section>
+
+
+
+<section id="models" class="tab">
+  <div class="card span12">
+    <h2>🧩 3 MODEL — PENDUDUK & KEBUTUHAN BERAS</h2>
+    <div class="actions"><button class="btn primary" type="button" onclick="runAllThreeModels()">▶ RUN SEMUA 3 MODEL</button></div>
+    <div id="modelParamStatus" class="good">✓ Parameter aktif: Model 1 → Model 2 → Model 3.</div>
+    <div class="note">Satu browser HTML untuk tiga model yang saling terhubung. Model 2 memakai output penduduk Model 1. Model 3 memakai target kebutuhan Model 2 dan DELAY 2 tahun.</div>
+    <div class="modelnav">
+      <button class="active" onclick="mTab('m1',this)">MODEL 1 — PENDUDUK</button>
+      <button onclick="mTab('m2',this)">MODEL 2 — KEBUTUHAN BERAS</button>
+      <button onclick="mTab('m3',this)">MODEL 3 — PRODUKSI + DELAY</button>
+    </div>
+  </div>
+
+  <div id="m1" class="mtab active">
+    <div class="grid">
+      <div class="card span4">
+        <h3>👥 Parameter Model 1</h3>
+        <div class="formgrid">
+          <div><label>Penduduk awal 2024</label><input id="m1p0" type="number" value="300000"></div>
+          <div><label>Tahun awal</label><input id="m1y0" type="number" value="2024"></div>
+          <div><label>Tahun akhir</label><input id="m1y1" type="number" value="2050"></div>
+          <div><label>STEP / dt</label><input id="m1dt" type="number" value="1" step="0.1" min="0.01"></div>
+          <div><label>Growth 2024–2035 (%)</label><input id="m1g1" type="number" value="2"></div>
+          <div><label>Growth mulai 2036 (%)</label><input id="m1g2" type="number" value="0.95"></div>
+        </div>
+        <div class="actions"><button class="btn primary" onclick="runModel1()">▶ RUN MODEL 1</button></div>
+        <div class="eq">IF(Tahun ≤ 2035, 2%, 0,95%)</div>
+      </div>
+      <div class="card span8">
+        <h3>📈 Penduduk</h3><div id="m1canvas" class="resultbox" style="padding:0"></div>
+      </div>
+      <div class="card span12">
+        <h3>📋 Hasil Model 1</h3><div id="m1kpi" class="kpis"></div>
+        <div class="tablewrap"><table id="m1table"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="m2" class="mtab">
+    <div class="grid">
+      <div class="card span4">
+        <h3>🌾 Parameter Model 2</h3>
+        <div class="formgrid">
+          <div><label>Konsumsi awal (kg/jiwa/tahun)</label><input id="m2c0" type="number" value="100" step="0.1"></div>
+          <div><label>Cadangan (%)</label><input id="m2reserve" type="number" value="5" step="0.1"></div>
+        </div>
+        <div class="note">Masukkan tabel konsumsi pada bagian GRAPH/TABEL di bawah. Jika belum ada, model memakai konsumsi awal.</div>
+        <div class="actions"><button class="btn primary" onclick="runModel2()">▶ RUN MODEL 2</button></div>
+      </div>
+      <div class="card span8">
+        <h3>📊 Tabel GRAPH — Konsumsi Beras per Kapita</h3>
+        <div class="actions"><button class="btn" onclick="addConsumptionRow()">＋ Tambah Tahun</button><button class="btn danger" onclick="resetConsumption()">↺ Reset Tabel</button></div>
+        <div class="tablewrap"><table id="consTable"></table></div>
+      </div>
+      <div class="card span12">
+        <h3>📈 Kebutuhan Beras</h3><div id="m2canvas" class="resultbox" style="padding:0"></div>
+        <div id="m2kpi" class="kpis"></div>
+        <div class="tablewrap"><table id="m2table"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="m3" class="mtab">
+    <div class="grid">
+      <div class="card span4">
+        <h3>🏭 Parameter Model 3</h3>
+        <div class="formgrid">
+          <div><label>Produksi awal (ton/tahun)</label><input id="m3p0" type="number" value="28200"></div>
+          <div><label>Delay produksi (tahun)</label><input id="m3delay" type="number" value="2" min="0" step="1"></div>
+        </div>
+        <div class="eq">Target Produksi = Kebutuhan × 1,05</div>
+        <div class="eq">Produksi Aktual(t) = Target Produksi(t − 2)</div>
+        <div class="actions"><button class="btn primary" onclick="runModel3()">▶ RUN MODEL 3</button></div>
+      </div>
+      <div class="card span8">
+        <h3>📈 Kebutuhan vs Produksi</h3><div id="m3canvas" class="resultbox" style="padding:0"></div>
+      </div>
+      <div class="card span12">
+        <div id="m3kpi" class="kpis"></div>
+        <div class="tablewrap"><table id="m3table"></table></div>
+        <div id="m3audit"></div>
+      </div>
+    </div>
+  </div>
+
+<!-- ===== POWER SIM FUNCTION LAB INSIDE 7.3 ===== -->
+<div class="card span12 func-lab">
+  <h3>🧩 PowerSim Function Lab — 7.3</h3>
+  <div class="note">
+    Library fungsi mengikuti rekap materi PowerSim: TIME/STARTTIME/STOPTIME/TIMESTEP,
+    IF/AND/OR/NOT/FORCASE, DELAY/DELAY1/DELAY3/DELAYP, GRAPH, STEP, RAMP, PULSE,
+    fungsi matematika, serta RANDOM/NORMAL/UNIFORM.
+  </div>
+
+  <div class="func-grid">
+    <div class="func-card">
+      <h4>⏱ Flow & Time</h4>
+      <span class="func-tag">STARTTIME</span><span class="func-tag">STOPTIME</span>
+      <span class="func-tag">TIMESTEP / DT</span><span class="func-tag">TIME</span>
+      <code>TIME → waktu simulasi saat ini</code>
+    </div>
+    <div class="func-card">
+      <h4>🔀 Logic & Conditional</h4>
+      <span class="func-tag">IF</span><span class="func-tag">AND</span><span class="func-tag">OR</span>
+      <span class="func-tag">NOT</span><span class="func-tag">FORCASE</span>
+      <code>IF(kondisi,true,false)</code>
+    </div>
+    <div class="func-card">
+      <h4>⏳ Delay</h4>
+      <span class="func-tag">DELAY</span><span class="func-tag">DELAY1</span>
+      <span class="func-tag">DELAY3</span><span class="func-tag">DELAYP</span>
+      <code>input + tau + orde + initial</code>
+    </div>
+    <div class="func-card">
+      <h4>📊 Input & Table</h4>
+      <span class="func-tag">GRAPH</span><span class="func-tag">STEP</span>
+      <span class="func-tag">RAMP</span><span class="func-tag">PULSE</span>
+      <code>Lookup / perubahan terhadap waktu</code>
+    </div>
+    <div class="func-card">
+      <h4>🧮 Math</h4>
+      <span class="func-tag">ABS</span><span class="func-tag">EXP</span><span class="func-tag">LN</span>
+      <span class="func-tag">MIN</span><span class="func-tag">MAX</span><span class="func-tag">ROUND</span>
+      <span class="func-tag">INT</span>
+    </div>
+    <div class="func-card">
+      <h4>🎲 Random</h4>
+      <span class="func-tag">RANDOM</span><span class="func-tag">NORMAL</span><span class="func-tag">UNIFORM</span>
+      <code>uji sensitivitas / ketidakpastian</code>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px;background:#091710">
+    <h3 style="margin-top:0">🧪 Function Tester</h3>
+    <div class="func-test-grid">
+      <div>
+        <label>Fungsi</label>
+        <select id="fnType" onchange="renderFunctionInputs()">
+          <option value="IF">IF</option>
+          <option value="AND">AND</option>
+          <option value="OR">OR</option>
+          <option value="NOT">NOT</option>
+          <option value="FORCASE">FORCASE</option>
+          <option value="STEP">STEP</option>
+          <option value="RAMP">RAMP</option>
+          <option value="PULSE">PULSE</option>
+          <option value="GRAPH">GRAPH</option>
+          <option value="DELAY1">DELAY1</option>
+          <option value="DELAY3">DELAY3</option>
+          <option value="DELAYP">DELAYP</option>
+          <option value="ABS">ABS</option>
+          <option value="EXP">EXP</option>
+          <option value="LN">LN</option>
+          <option value="MIN">MIN</option>
+          <option value="MAX">MAX</option>
+          <option value="ROUND">ROUND</option>
+          <option value="INT">INT</option>
+          <option value="RANDOM">RANDOM</option>
+          <option value="NORMAL">NORMAL</option>
+          <option value="UNIFORM">UNIFORM</option>
+          <option value="TIME">TIME</option>
+        </select>
+      </div>
+      <div id="fnInputA"><label>Nilai A</label><input id="fnA" type="number" value="10"></div>
+      <div id="fnInputB"><label>Nilai B</label><input id="fnB" type="number" value="5"></div>
+      <div id="fnInputC"><label>Nilai C</label><input id="fnC" type="number" value="100"></div>
+    </div>
+
+    <div class="func-test-grid" style="margin-top:9px">
+      <div><label>TIME / Tahun</label><input id="fnTime" type="number" value="2024"></div>
+      <div><label>Start Time</label><input id="fnStart" type="number" value="2030"></div>
+      <div><label>Interval / Tau</label><input id="fnInterval" type="number" value="2" step="0.1"></div>
+      <div><label>Orde / Case</label><input id="fnOrder" type="number" value="3" min="1"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" onclick="testPowerSimFunction()">▶ TEST FUNCTION</button>
+      <button class="btn" onclick="copyFunctionFormula()">📋 COPY FORMULA</button>
+      <button class="btn danger" onclick="resetFunctionTester()">↺ RESET</button>
+    </div>
+    <div class="eq" id="fnFormula">IF(10 &gt; 5, 100, 0)</div>
+    <div class="func-output" id="fnOutput">Hasil akan tampil di sini.</div>
+  </div>
+
+  <div class="card" style="margin-top:12px;background:#091710">
+    <h3 style="margin-top:0">📈 GRAPH / LOOKUP DATA</h3>
+    <div class="note">Masukkan pasangan Tahun–Nilai. GRAPH menggunakan interpolasi linear di antara titik tabel dan nilai ujung untuk area di luar tabel.</div>
+    <div class="actions">
+      <button class="btn" onclick="addFunctionGraphRow()">＋ Tambah Baris</button>
+      <button class="btn danger" onclick="resetFunctionGraph()">↺ Reset GRAPH</button>
+    </div>
+    <div class="func-table"><table id="fnGraphTable"></table></div>
+    <div class="row3" style="margin-top:9px">
+      <div><label>Tahun yang dicari</label><input id="fnGraphX" type="number" value="2027"></div>
+      <div><label>Hasil GRAPH</label><input id="fnGraphResult" readonly></div>
+      <div><label>Formula</label><input id="fnGraphFormula" readonly></div>
+    </div>
+    <div class="actions"><button class="btn primary" onclick="testGraphLookup()">▶ TEST GRAPH</button></div>
+  </div>
+
+  <div class="card" style="margin-top:12px;background:#091710">
+    <h3 style="margin-top:0">⚙️ Waktu Model 7.3</h3>
+    <div class="formgrid">
+      <div><label>STARTTIME</label><input id="fnStartTimeModel" type="number" value="2024"></div>
+      <div><label>STOPTIME</label><input id="fnStopTimeModel" type="number" value="2050"></div>
+      <div><label>TIMESTEP / DT</label><input id="fnTimeStepModel" type="number" value="1" step="0.1"></div>
+      <div><label>TIME contoh</label><input id="fnCurrentTime" type="number" value="2030"></div>
+    </div>
+    <div class="eq" id="fnTimeFormula">STARTTIME=2024; STOPTIME=2050; TIMESTEP=1; TIME=2030</div>
+  </div>
+
+  <div class="card" style="margin-top:12px;background:#091710">
+    <h3 style="margin-top:0">🔗 Status Integrasi 3 Model</h3>
+    <div class="eq">MODEL 1: IF + TIME + TIMESTEP/STEP → Penduduk</div>
+    <div class="eq">MODEL 2: GRAPH + TIME → Konsumsi → Kebutuhan + Cadangan</div>
+    <div class="eq">MODEL 3: DELAY1/DELAY3/DELAYP + TIME → Produksi Aktual</div>
+    <div class="eq">STEP / RAMP / PULSE → tersedia sebagai intervensi kebijakan untuk pengujian skenario.</div>
+  </div>
+</div>
+
+</section>
+
+<section id="excel" class="tab">
+  <div class="grid">
+    <div class="card span12">
+      <h3>📊 DATA EXCEL TERINTEGRASI</h3>
+      <div class="note">Data dari <b>Simulasi_Dinamika_Penduduk.xlsx</b> sudah ditanam langsung ke file HTML ini. File XLSX terpisah tidak diperlukan untuk membuka data ini.</div>
+      <div class="actions">
+        <button class="btn primary" onclick="loadExcelToModel()">↳ Gunakan Parameter Excel → Simulasi</button>
+        <button class="btn" onclick="showExcelParameters()">🔄 Tampilkan Parameter</button>
+        <button class="btn blue" onclick="exportEmbeddedExcelCSV()">⬇️ Export Data Excel</button>
+      </div>
+    </div>
+    <div class="card span4">
+      <h3>Parameter dari Excel</h3>
+      <div class="tablewrap"><table id="excelParamTable"></table></div>
+    </div>
+    <div class="card span8">
+      <h3>Tabel Proyeksi Excel (2024–2050)</h3>
+      <div class="tablewrap"><table id="excelDataTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">SuperSim PowerSim Style — Andri&nbsp;&nbsp;_L2011261001 • Model browser untuk pembelajaran System Dynamics</div>
+</main>
+
+<script>
+const embeddedExcelData = {"source": "Simulasi_Dinamika_Penduduk.xlsx", "sheet": "Simulasi Dinamika Penduduk", "parameters": {"Penduduk Awal (2024)": {"value": 500000, "unit": "jiwa"}, "Tingkat Kelahiran": {"value": 0.018, "unit": "per tahun"}, "Tingkat Kematian": {"value": 0.007, "unit": "per tahun"}, "Migrasi Direncanakan": {"value": 14000, "unit": "jiwa/tahun"}, "Delay Material Migrasi (Rata-rata)": {"value": 2, "unit": "tahun"}, "Initial DELAYMTR": {"value": 0, "unit": "jiwa/tahun"}, "Delay Informasi Penduduk (Rata-rata)": {"value": 3, "unit": "tahun"}, "Initial DELAYINF": {"value": 500000, "unit": "jiwa"}}, "table": [[2024, "=$C$7", "=C18*$C$8", "=C18*$C$9", "=$C$10", "=$C$12", "=$C$14"], [2025, "=C18+D18-E18+G18", "=C19*$C$8", "=C19*$C$9", "=$C$10", "=$C$12", "=$C$14"], [2026, "=C19+D19-E19+G19", "=C20*$C$8", "=C20*$C$9", "=$C$10", "=F18", "=$C$14"], [2027, "=C20+D20-E20+G20", "=C21*$C$8", "=C21*$C$9", "=$C$10", "=F19", "=C18"], [2028, "=C21+D21-E21+G21", "=C22*$C$8", "=C22*$C$9", "=$C$10", "=F20", "=C19"], [2029, "=C22+D22-E22+G22", "=C23*$C$8", "=C23*$C$9", "=$C$10", "=F21", "=C20"], [2030, "=C23+D23-E23+G23", "=C24*$C$8", "=C24*$C$9", "=$C$10", "=F22", "=C21"], [2031, "=C24+D24-E24+G24", "=C25*$C$8", "=C25*$C$9", "=$C$10", "=F23", "=C22"], [2032, "=C25+D25-E25+G25", "=C26*$C$8", "=C26*$C$9", "=$C$10", "=F24", "=C23"], [2033, "=C26+D26-E26+G26", "=C27*$C$8", "=C27*$C$9", "=$C$10", "=F25", "=C24"], [2034, "=C27+D27-E27+G27", "=C28*$C$8", "=C28*$C$9", "=$C$10", "=F26", "=C25"], [2035, "=C28+D28-E28+G28", "=C29*$C$8", "=C29*$C$9", "=$C$10", "=F27", "=C26"], [2036, "=C29+D29-E29+G29", "=C30*$C$8", "=C30*$C$9", "=$C$10", "=F28", "=C27"], [2037, "=C30+D30-E30+G30", "=C31*$C$8", "=C31*$C$9", "=$C$10", "=F29", "=C28"], [2038, "=C31+D31-E31+G31", "=C32*$C$8", "=C32*$C$9", "=$C$10", "=F30", "=C29"], [2039, "=C32+D32-E32+G32", "=C33*$C$8", "=C33*$C$9", "=$C$10", "=F31", "=C30"], [2040, "=C33+D33-E33+G33", "=C34*$C$8", "=C34*$C$9", "=$C$10", "=F32", "=C31"], [2041, "=C34+D34-E34+G34", "=C35*$C$8", "=C35*$C$9", "=$C$10", "=F33", "=C32"], [2042, "=C35+D35-E35+G35", "=C36*$C$8", "=C36*$C$9", "=$C$10", "=F34", "=C33"], [2043, "=C36+D36-E36+G36", "=C37*$C$8", "=C37*$C$9", "=$C$10", "=F35", "=C34"], [2044, "=C37+D37-E37+G37", "=C38*$C$8", "=C38*$C$9", "=$C$10", "=F36", "=C35"], [2045, "=C38+D38-E38+G38", "=C39*$C$8", "=C39*$C$9", "=$C$10", "=F37", "=C36"], [2046, "=C39+D39-E39+G39", "=C40*$C$8", "=C40*$C$9", "=$C$10", "=F38", "=C37"], [2047, "=C40+D40-E40+G40", "=C41*$C$8", "=C41*$C$9", "=$C$10", "=F39", "=C38"], [2048, "=C41+D41-E41+G41", "=C42*$C$8", "=C42*$C$9", "=$C$10", "=F40", "=C39"], [2049, "=C42+D42-E42+G42", "=C43*$C$8", "=C43*$C$9", "=$C$10", "=F41", "=C40"], [2050, "=C43+D43-E43+G43", "=C44*$C$8", "=C44*$C$9", "=$C$10", "=F42", "=C41"]]};
+let results=[], scenarios={}, graphChart=null;
+function showExcelParameters(){
+  const rows = Object.entries(embeddedExcelData.parameters);
+  $("excelParamTable").innerHTML =
+    '<tr><th>Parameter / Variabel</th><th>Nilai</th><th>Satuan</th></tr>' +
+    rows.map(([k,v])=>`<tr><td>${k}</td><td>${v.value}</td><td>${v.unit||''}</td></tr>`).join('');
+}
+function showExcelTable(){
+  const h=['Tahun','Penduduk Aktual (Stok)','Kelahiran (Inflow)','Kematian (Outflow)','Migrasi Direncanakan','Migrasi Aktual (Delay 2Th)','Penduduk Terlaporkan (Delay 3Th)'];
+  const rows=embeddedExcelData.table;
+  $("excelDataTable").innerHTML='<tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr>'+
+    rows.map(r=>'<tr>'+r.map((x,i)=>`<td>${x===null?'':x}</td>`).join('')+'</tr>').join('');
+}
+function loadExcelToModel(){
+  const p=embeddedExcelData.parameters;
+  const get=(key, fallback)=>p[key]?.value ?? fallback;
+  $('pop0').value=get('Penduduk Awal (2024)',500000);
+  $('year0').value=2024; $('year1').value=2050; $('dt').value=1;
+  $('br0').value=get('Tingkat Kelahiran',0.018)*100;
+  $('dr0').value=get('Tingkat Kematian',0.007)*100;
+  $('migration').value=get('Migrasi Direncanakan',14000);
+  $('materialTau').value=get('Delay Material Migrasi (Rata-rata)',2);
+  $('materialInitial').value=get('Initial DELAYMTR',0);
+  $('infoTau').value=get('Delay Informasi Penduduk (Rata-rata)',3);
+  $('informationInitial').value=get('Initial DELAYINF',500000);
+  $('materialOrder').value=3;
+  $('informationOrder').value=2;
+  alert('Parameter Excel sudah dimasukkan ke menu SIMULASI. Klik RUN MODEL untuk menjalankan.');
+  tab('sim',document.querySelectorAll('nav button')[3]);
+}
+function exportEmbeddedExcelCSV(){
+  const h=['Tahun','Penduduk Aktual (Stok)','Kelahiran (Inflow)','Kematian (Outflow)','Migrasi Direncanakan','Migrasi Aktual (Delay 2Th)','Penduduk Terlaporkan (Delay 3Th)'];
+  let csv=h.join(',')+'\\n';
+  embeddedExcelData.table.forEach(r=>csv+=r.map(x=>`"${x??''}"`).join(',')+'\\n');
+  download(csv,'Data_Excel_Terintegrasi_Simulasi_Penduduk.csv','text/csv');
+}
+const $=id=>document.getElementById(id);
+function tab(id,btn){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='graph')renderGraph();}
+function clearStory(){$('storyText').value='';$('storyKpi').innerHTML='';}
+function buildModel(){ $('storyKpi').innerHTML='<div class="kpi">Stock<b>Jumlah Penduduk</b></div><div class="kpi">Flow<b>Pertambahan</b></div><div class="kpi">Auxiliary<b>Laju Lahir</b></div><div class="kpi">Auxiliary<b>Laju Mati</b></div><div class="kpi">Parameter<b>Luas Wilayah</b></div>'; alert('Model CLD + SFD dibentuk. Lanjut ke SFD atau Simulasi.');}
+function params(){return {
+p:+$('pop0').value,y0:+$('year0').value,y1:+$('year1').value,dt:+$('dt').value,
+br:+$('br0').value/100,dr:+$('dr0').value/100,area:+$('area').value,
+migration:+$('migration').value,
+ifOn:$('ifOn').value==='yes',ifThreshold:+$('ifThreshold').value,ifTrue:+$('ifTrue').value,ifFalse:+$('ifFalse').value,
+stepValue:+$('stepValue').value,stepTime:+$('stepTime').value,
+materialTau:Math.max(0.01,+$('materialTau').value),materialOrder:Math.max(1,Math.round(+$('materialOrder').value)),materialInitial:+$('materialInitial').value,
+informationTau:Math.max(0.01,+$('infoTau').value),informationOrder:Math.max(1,Math.round(+$('informationOrder').value)),informationInitial:+$('informationInitial').value
+}}
+function nthDelay(input, state, tau, dt, order){
+  const alpha=Math.min(1,dt/Math.max(0.000001,tau));
+  let x=input;
+  for(let i=0;i<order;i++){
+    state[i]+= (x-state[i])*alpha;
+    x=state[i];
+  }
+  return x;
+}
+function nthDelay(input,state,tau,dt,order){
+ const alpha=Math.min(1,dt/Math.max(0.000001,tau));let x=input;
+ for(let i=0;i<order;i++){state[i]+= (x-state[i])*alpha;x=state[i]} return x
+}
+function simulate(br,dr){
+ const p=params();let pop=p.p,rows=[];
+ const infoState=Array(p.informationOrder).fill(p.informationInitial);
+ const materialState=Array(p.materialOrder).fill(p.materialInitial);
+ for(let y=p.y0;y<=p.y1+1e-9;y+=p.dt){
+  const ifFactor=p.ifOn?(pop>=p.ifThreshold?p.ifTrue:p.ifFalse):1;
+  const step=p.stepValue*(y>=p.stepTime?1:0);
+  const delayInf=nthDelay(pop,infoState,p.informationTau,p.dt,p.informationOrder);
+  const birth=delayInf*br*ifFactor,death=delayInf*dr;
+  const delayMtr=nthDelay(p.migration,materialState,p.materialTau,p.dt,p.materialOrder);
+  const net=birth-death+delayMtr+step;
+  rows.push({year:+y.toFixed(6),pop,birth,death,migration:delayMtr,net,growth:(br*ifFactor-dr)*100,density:pop/p.area,ifFactor,step,delayed:delayMtr,delayInf,delayMtr});
+  pop+=net*p.dt;
+ } return rows
+}
+function auditModel(){
+ const p=params(),issues=[];
+ if(p.p<0)issues.push('Penduduk awal tidak boleh negatif.');
+ if(p.br<0||p.dr<0)issues.push('Tingkat kelahiran/kematian tidak boleh negatif.');
+ if(p.migration<0)issues.push('Migrasi direncanakan negatif; periksa arah flow.');
+ if(p.y1<=p.y0)issues.push('Tahun akhir harus lebih besar dari tahun awal.');
+ if(p.dt<=0)issues.push('Time step harus > 0.');
+ if(p.dt>p.materialTau)issues.push('dt lebih besar dari tau DELAYMTR; gunakan dt ≤ tau.');
+ if(p.dt>p.informationTau)issues.push('dt lebih besar dari tau DELAYINF; gunakan dt ≤ tau.');
+ $('modelAudit').innerHTML=issues.length?issues.map(x=>`<div class="audit-warn">⚠ ${x}</div>`).join(''):'<div class="audit-ok">✓ Model lolos audit parameter dan stabilitas numerik dasar.</div>';
+ return !issues.length
+}
+function resetAll(){
+ results=[];scenarios={};$('storyText').value='';$('storyKpi').innerHTML='';$('simKpi').innerHTML='';$('simTable').innerHTML='';$('exportText').innerHTML='RUN model terlebih dahulu.';$('modelAudit').innerHTML='';deleteGraph()
+}
+function runAll(){const p=params();if(!auditModel())return alert('Model belum lolos audit.');if(!(p.y1>p.y0)||p.dt<=0)return alert('Periksa tahun dan STEP.');results=simulate(p.br,p.dr);scenarios={base:results,fp:simulate(+$('sbr_fp').value/100,+$('sdr_fp').value/100),high:simulate(+$('sbr_high').value/100,+$('sdr_high').value/100)};renderTable(results);renderKpi(results);$('exportText').innerHTML=`Population(t+dt)=Population(t)+NetFlow×dt<br>Births=DELAYINF×BirthRate×IFFactor<br>Deaths=DELAYINF×DeathRate<br>Migrasi=DELAYMTR<br>Penduduk(t+dt)=Penduduk(t)+(Births−Deaths+DELAYMTR+STEP)×dt<br>DELAYINF=DELAY1 orde ${p.informationOrder}, initial ${p.informationInitial}, tau 3 tahun<br>DELAYMTR=DELAY1 orde ${p.materialOrder}, initial ${p.materialInitial}, tau 2 tahun<br>IFFactor=IF(Population≥${p.ifThreshold},${p.ifTrue},${p.ifFalse})<br>STEP=IF(Time≥${p.stepTime},${p.stepValue},0)`;renderGraph();alert('RUN selesai. Tabel, Graph, dan scenario siap.');}
+function runScenarios(){if(!results.length)return alert('RUN MODEL dulu.');scenarios={base:simulate(+$('sbr_base').value/100,+$('sdr_base').value/100),fp:simulate(+$('sbr_fp').value/100,+$('sdr_fp').value/100),high:simulate(+$('sbr_high').value/100,+$('sdr_high').value/100)};renderGraph();}
+function renderKpi(r){let last=r[r.length-1];$('simKpi').innerHTML=`<div class="kpi">Awal<b>${Math.round(r[0].pop).toLocaleString('id-ID')}</b></div><div class="kpi">Akhir<b>${Math.round(last.pop).toLocaleString('id-ID')}</b></div><div class="kpi">Kelahiran akhir<b>${Math.round(last.birth).toLocaleString('id-ID')}</b></div><div class="kpi">Kematian akhir<b>${Math.round(last.death).toLocaleString('id-ID')}</b></div><div class="kpi">Net growth<b>${last.growth.toFixed(4)}%</b></div>`}
+function renderTable(r){let h='<tr><th>Tahun</th><th>Populasi</th><th>DELAYINF</th><th>Kelahiran</th><th>Kematian</th><th>DELAYMTR</th><th>Net Flow</th><th>IF Factor</th><th>STEP</th><th>Laju %</th><th>Kepadatan</th></tr>';r.forEach(x=>h+=`<tr><td>${x.year}</td><td>${Math.round(x.pop).toLocaleString('id-ID')}</td><td>${Math.round(x.delayInf).toLocaleString('id-ID')}</td><td>${Math.round(x.birth).toLocaleString('id-ID')}</td><td>${Math.round(x.death).toLocaleString('id-ID')}</td><td>${Math.round(x.delayMtr).toLocaleString('id-ID')}</td><td>${Math.round(x.net).toLocaleString('id-ID')}</td><td>${x.ifFactor.toFixed(2)}</td><td>${Math.round(x.step).toLocaleString('id-ID')}</td><td>${x.growth.toFixed(4)}</td><td>${x.density.toFixed(2)}</td></tr>`);$('simTable').innerHTML=h}
+function metricInfo(k){return {
+pop:['Populasi','Jiwa','pop'],birth:['Kelahiran','Jiwa/tahun','birth'],
+death:['Kematian','Jiwa/tahun','death'],migration:['Migrasi / DELAYMTR','Jiwa/tahun','migration'],
+net:['Pertumbuhan Bersih','Jiwa/tahun','net'],growth:['Laju Pertumbuhan','%/tahun','growth'],
+density:['Kepadatan','Jiwa/km²','density'],delayinf:['DELAYINF','Jiwa','delayInf'],
+delaymtr:['DELAYMTR','Jiwa/tahun','delayMtr'],delayed:['Flow Tertunda','Jiwa/tahun','delayed']
+}[k]}
+function renderGraph(){if(!Object.keys(scenarios).length)return;let metric=$('graphMetric').value, which=$('graphScenario').value,type=$('graphType').value,info=metricInfo(metric),keys=which==='all'?['base','fp','high']:[which];keys=keys.filter(k=>scenarios[k]?.length);names={base:'Baseline',fp:'Family Planning',high:'High Growth'},datasets=keys.map(k=>({label:names[k],data:scenarios[k].map(r=>({x:r.year,y:r[info[2]]})),tension:.25}));if(graphChart)graphChart.destroy();graphChart=new Chart($('graphCanvas'),{type,data:{labels:scenarios.base.map(r=>r.year),datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'},title:{display:true,text:info[0]+' — Multi Scenario'}},scales:{x:{title:{display:true,text:'Tahun'}},y:{title:{display:true,text:info[1]}}}}});}
+function deleteGraph(){if(graphChart){graphChart.destroy();graphChart=null}const c=$('graphCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height)}
+function exportPNG(){if(!graphChart)return alert('Tampilkan Graph dulu.');const a=document.createElement('a');a.href=graphChart.toBase64Image('image/png',1);a.download='SuperSim_Graph_Andri.png';a.click()}
+function exportPDFGraph(){if(!graphChart)return alert('Tampilkan Graph dulu.');const {jsPDF}=window.jspdf;const p=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});p.setFontSize(16);p.text('SuperSim PowerSim Style — Andri',14,15);p.setFontSize(11);p.text('Graph Simulation',14,22);p.addImage(graphChart.toBase64Image('image/png',1),'PNG',14,28,268,145);p.save('SuperSim_Graph_Andri.pdf')}
+function exportCSV(){if(!results.length)return alert('RUN dulu.');let csv='Tahun,Populasi,Kelahiran,Kematian,Pertumbuhan Bersih,Laju Pertumbuhan %,Kepadatan\\n';results.forEach(r=>csv+=`${r.year},${r.pop},${r.birth},${r.death},${r.net},${r.growth},${r.density}\\n`);download(csv,'SuperSim_Simulation_Andri.csv','text/csv')}
+function download(data,name,type){const b=new Blob([data],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+function clearSimulation(){resetAll()}
+function modelText(){
+  const p=params();
+  const metric=metricInfo($('graphMetric').value)[0];
+  let s=[];
+  s.push('SUPERSIM POWERSIM STYLE — ANDRI  _L2011261001');
+  s.push('');
+  s.push('=== 1. CERITA / PROBLEM ===');
+  s.push($('storyText').value || '(kosong)');
+  s.push('');
+  s.push('=== 2. CLD ===');
+  s.push('JUMLAH PENDUDUK [Stock] → KELAHIRAN [Flow]');
+  s.push('JUMLAH PENDUDUK [Stock] → KEMATIAN [Flow]');
+  s.push('LUAS WILAYAH [Parameter] + JUMLAH PENDUDUK → KEPADATAN [Auxiliary]');
+  s.push('LAJU KELAHIRAN + LAJU KEMATIAN → TINGKAT PERTUMBUHAN');
+  s.push('');
+  s.push('=== 3. SFD ===');
+  s.push('PERTAMBAHAN PENDUDUK → JUMLAH PENDUDUK');
+  s.push('KELAHIRAN dan KEMATIAN menentukan PERTUMBUHAN BERSIH');
+  s.push('');
+  s.push('=== 4. KLASIFIKASI VARIABEL ===');
+  s.push('Stock: Jumlah Penduduk');
+  s.push('Flow: Pertambahan Penduduk, Kelahiran, Kematian');
+  s.push('Auxiliary: Kepadatan, Tingkat Pertumbuhan');
+  s.push('Parameter: Laju Kelahiran, Laju Kematian, Luas Wilayah');
+  s.push('');
+  s.push('=== 5. PARAMETER SIMULASI ===');
+  s.push(`Populasi awal: ${p.p}`);
+  s.push(`Tahun awal: ${p.y0}`);
+  s.push(`Tahun akhir: ${p.y1}`);
+  s.push(`STEP: ${p.dt}`);
+  s.push(`Laju kelahiran: ${(p.br*100).toFixed(4)}%/tahun`);
+  s.push(`Laju kematian: ${(p.dr*100).toFixed(4)}%/tahun`);
+  s.push(`Luas wilayah: ${p.area} km²`);
+   s.push(`Migrasi direncanakan: ${p.migration} jiwa/tahun`);
+   s.push(`DELAYMTR: ${p.materialOrder} orde, tau ${p.materialTau} tahun, initial ${p.materialInitial} jiwa/tahun`);
+   s.push(`DELAYINF: ${p.informationOrder} orde, tau ${p.informationTau} tahun, initial ${p.informationInitial} jiwa`);
+  s.push('');
+  s.push('=== 6. PERSAMAAN ===');
+  s.push('Population(t+dt) = Population(t) + (Births − Deaths) × dt');
+  s.push('Births = Population × BirthRate');
+  s.push('Deaths = Population × DeathRate');
+  s.push('NetGrowth = Births − Deaths + DELAYMTR + STEP');
+  s.push('GrowthRate = BirthRate × IFFactor − DeathRate');
+   s.push('IFFactor = IF(Population ≥ Threshold, TrueFactor, FalseFactor)');
+   s.push('STEP = IF(Time ≥ StartTime, StepValue, 0)');
+   s.push('DELAYINF = DELAY1 orde 2, tau 3 tahun, initial 500000');
+   s.push('DELAYMTR = DELAY1 orde 3, tau 2 tahun, initial 0');
+   s.push(`Delay type: ${p.delayType}; tau: ${p.delayTau}`);
+  s.push('');
+  s.push(`=== 7. GRAPH TERPILIH: ${metric} ===`);
+  s.push('Graph mengambil data langsung dari hasil RUN.');
+  s.push('');
+  s.push('=== 8. TABEL SIMULASI ===');
+  if(results.length){
+    s.push('Tahun | Populasi | DELAYINF | Kelahiran | Kematian | DELAYMTR | Net Flow | IF Factor | STEP | Laju % | Kepadatan');
+    results.forEach(r=>s.push(`${r.year} | ${Math.round(r.pop)} | ${Math.round(r.delayInf)} | ${Math.round(r.birth)} | ${Math.round(r.death)} | ${Math.round(r.delayMtr)} | ${Math.round(r.net)} | ${r.ifFactor.toFixed(2)} | ${Math.round(r.step)} | ${r.growth.toFixed(4)} | ${r.density.toFixed(2)}`));
+  } else s.push('RUN model terlebih dahulu.');
+  s.push('');
+  s.push('=== 9. SCENARIO ===');
+  const names={base:'Baseline',fp:'Family Planning',high:'High Growth'};
+  Object.keys(names).forEach(k=>{
+    if(scenarios[k] && scenarios[k].length){
+      const z=scenarios[k][scenarios[k].length-1];
+      s.push(`${names[k]}: populasi akhir ${Math.round(z.pop)}, pertumbuhan ${z.growth.toFixed(4)}%`);
+    }
+  });
+  return s.join('\n');
+}
+function exportFullTXT(){
+  if(!results.length)return alert('RUN MODEL dulu agar seluruh hasil tersedia.');
+  download(modelText(),'SuperSim_Model_Lengkap_Andri_L2011261001.txt','text/plain');
+}
+function exportFullCSV(){
+  if(!results.length)return alert('RUN MODEL dulu.');
+  let csv='SUPERSIM POWERSIM STYLE — ANDRI _L2011261001\n';
+  csv+='CERITA\n"'+($('storyText').value||'').replace(/"/g,'""')+'"\n\n';
+  csv+='PARAMETER\nNama,Nilai\nPenduduk Awal,'+params().p+'\nTahun Awal,'+params().y0+'\nTahun Akhir,'+params().y1+'\nSTEP,'+params().dt+'\nTingkat Kelahiran (%),'+(params().br*100)+'\nTingkat Kematian (%),'+(params().dr*100)+'\nMigrasi Direncanakan,'+params().migration+'\nDELAYMTR Orde,'+params().materialOrder+'\nInitial DELAYMTR,'+params().materialInitial+'\nDELAYINF Orde,'+params().informationOrder+'\nInitial DELAYINF,'+params().informationInitial+'\nDELAYMTR Tau,2\nDELAYINF Tau,3\nLuas Wilayah (km2),'+params().area+'\n\n';
+  csv+='SIMULASI\nTahun,Populasi,DELAYINF,Kelahiran,Kematian,DELAYMTR,Net Flow,IF Factor,STEP,Laju Pertumbuhan %,Kepadatan\n';
+  results.forEach(r=>csv+=`${r.year},${r.pop},${r.delayInf},${r.birth},${r.death},${r.delayMtr},${r.net},${r.ifFactor},${r.step},${r.growth},${r.density}\n`);
+  csv+='\nSCENARIO,Populasi Akhir,Laju Pertumbuhan %\n';
+  const names={base:'Baseline',fp:'Family Planning',high:'High Growth'};
+  Object.keys(names).forEach(k=>{if(scenarios[k]?.length){let z=scenarios[k].at(-1);csv+=`${names[k]},${z.pop},${z.growth}\n`}});
+  download(csv,'SuperSim_Model_Lengkap_Andri_L2011261001.csv','text/csv');
+}
+function exportFullPDF(){
+  if(!results.length)return alert('RUN MODEL dulu agar PDF lengkap tersedia.');
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const lines=pdf.splitTextToSize(modelText(),180);
+  let y=14;
+  pdf.setFontSize(10);
+  lines.forEach(line=>{
+    if(y>285){pdf.addPage();y=14}
+    pdf.text(line,14,y); y+=4.4;
+  });
+  pdf.save('SuperSim_Model_Lengkap_Andri_L2011261001.pdf');
+}
+function copyFullModel(){
+  if(!results.length)return alert('RUN MODEL dulu.');
+  navigator.clipboard.writeText(modelText()).then(()=>alert('Semua model dan hasil berhasil disalin.'));
+}
+function copyEquations(){navigator.clipboard.writeText($('exportText').innerText);alert('Persamaan disalin.')}
+buildModel();showExcelParameters();showExcelTable();setTimeout(auditModel,50);
+</script>
+<script>
+/* ===== 3 MODEL ENGINE — FINAL LOCAL-BROWSER VERSION ===== */
+let m1Rows=[],m2Rows=[],m3Rows=[];
+let consumptionData=[];
+for(let yy=2024;yy<=2050;yy++) consumptionData.push([yy,100]);
+
+function mEl(id){return document.getElementById(id);}
+function mNum(id,fallback){
+  const e=mEl(id);
+  if(!e)return fallback;
+  const n=Number(String(e.value).replace(',','.'));
+  return Number.isFinite(n)?n:fallback;
+}
+function mTab(id,btn){
+  document.querySelectorAll('.mtab').forEach(e=>e.classList.remove('active'));
+  const e=mEl(id); if(e)e.classList.add('active');
+  document.querySelectorAll('.modelnav button').forEach(e=>e.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(id==='m2')renderConsumption();
+}
+function modelMessage(id,msg,ok=true){
+  const e=mEl(id);
+  if(e)e.innerHTML='<div class="model-status">'+(ok?'✓ ':'⚠ ')+msg+'</div>';
+}
+function renderSvgChart(targetId, series, title, yLabel){
+  const box=mEl(targetId); if(!box)return;
+  if(!series.length){box.innerHTML='<div class="model-status">Belum ada hasil. Klik RUN MODEL.</div>';return;}
+  const W=900,H=410,L=65,R=25,T=45,B=55;
+  const all=series.flatMap(s=>s.data);
+  let min=Math.min(...all),max=Math.max(...all);
+  if(min===max){min-=1;max+=1;}
+  const pad=(max-min)*0.08;min-=pad;max+=pad;
+  const n=series[0].data.length;
+  const x=i=>L+(W-L-R)*(n<=1?0:i/(n-1));
+  const y=v=>T+(H-T-B)*(1-(v-min)/(max-min));
+  let svg=`<svg class="model-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${title}">`;
+  svg+=`<text x="${W/2}" y="25" text-anchor="middle" font-size="17" font-weight="700">${title}</text>`;
+  for(let i=0;i<=5;i++){
+    const yy=T+(H-T-B)*i/5, val=max-(max-min)*i/5;
+    svg+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" class="gridline"/>`;
+    svg+=`<text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="10">${Number(val).toLocaleString('id-ID',{maximumFractionDigits:0})}</text>`;
+  }
+  svg+=`<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" class="axis"/>`;
+  svg+=`<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" class="axis"/>`;
+  const yearLabels=series[0].years;
+  for(let i=0;i<n;i+=Math.max(1,Math.ceil(n/7))){
+    svg+=`<text x="${x(i)}" y="${H-B+20}" text-anchor="middle" font-size="10">${yearLabels[i]}</text>`;
+  }
+  series.forEach((ser,si)=>{
+    const pts=ser.data.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+    svg+=`<polyline points="${pts}" class="line${si+1}"/>`;
+  });
+  let lx=L, ly=H-14;
+  series.forEach((ser,si)=>{
+    svg+=`<line x1="${lx}" y1="${ly-4}" x2="${lx+25}" y2="${ly-4}" class="line${si+1}"/>`;
+    svg+=`<text x="${lx+31}" y="${ly}" class="legend">${ser.label}</text>`;
+    lx+=Math.max(130,ser.label.length*7+45);
+  });
+  svg+=`<text x="12" y="${H/2}" transform="rotate(-90 12 ${H/2})" font-size="11">${yLabel}</text>`;
+  svg+='</svg>';
+  box.innerHTML=svg;
+}
+function renderConsumption(){
+  const t=mEl('consTable'); if(!t)return;
+  let h='<tr><th>Tahun</th><th>Konsumsi kg/jiwa/tahun</th></tr>';
+  h+=consumptionData.map((r,i)=>`<tr><td>${r[0]}</td><td><input style="max-width:150px" type="number" step="0.1" value="${r[1]}" onchange="consumptionData[${i}][1]=Number(this.value)||0"></td></tr>`).join('');
+  t.innerHTML=h;
+}
+function addConsumptionRow(){
+  const y=consumptionData.length?Number(consumptionData[consumptionData.length-1][0])+1:2024;
+  consumptionData.push([y,100]);renderConsumption();
+}
+function resetConsumption(){
+  consumptionData=[];for(let y=2024;y<=2050;y++)consumptionData.push([y,100]);renderConsumption();
+}
+function runModel1(){
+  const p0=mNum('m1p0',300000),y0=Math.round(mNum('m1y0',2024)),y1=Math.round(mNum('m1y1',2050)),dt=mNum('m1dt',1);
+  const g1=mNum('m1g1',2)/100,g2=mNum('m1g2',.95)/100;
+  if(p0<0||dt<=0||y1<y0){modelMessage('m1kpi','Parameter tidak valid.',false);return false;}
+  m1Rows=[];let pop=p0;
+  for(let y=y0;y<=y1+1e-9;y+=dt){
+    const rate=y<=2035?g1:g2,inc=pop*rate;
+    m1Rows.push({year:+y.toFixed(6),pop,growth:inc,rate:rate*100});pop+=inc*dt;
+  }
+  const z=m1Rows[m1Rows.length-1];
+  mEl('m1kpi').innerHTML=
+    `<div class="kpi">Penduduk awal<b>${Math.round(m1Rows[0].pop).toLocaleString('id-ID')}</b></div>
+     <div class="kpi">Penduduk akhir<b>${Math.round(z.pop).toLocaleString('id-ID')}</b></div>
+     <div class="kpi">Laju akhir<b>${z.rate.toFixed(2)}%</b></div>
+     <div class="kpi">Tahun akhir<b>${z.year}</b></div>
+     <div class="kpi">Perubahan<b>${Math.round(z.pop-m1Rows[0].pop).toLocaleString('id-ID')}</b></div>`;
+  mEl('m1table').innerHTML='<tr><th>Tahun</th><th>Penduduk</th><th>Pertambahan</th><th>Laju %</th></tr>'+
+    m1Rows.map(r=>`<tr><td>${r.year}</td><td>${Math.round(r.pop).toLocaleString('id-ID')}</td><td>${Math.round(r.growth).toLocaleString('id-ID')}</td><td>${r.rate.toFixed(2)}</td></tr>`).join('');
+  renderSvgChart('m1canvas',[{label:'Penduduk',data:m1Rows.map(r=>r.pop),years:m1Rows.map(r=>r.year)}],'Model 1 — Penduduk','Jiwa');
+  modelMessage('m1kpi','Model 1 berhasil dihitung dari parameter di sebelah kiri.');
+  return true;
+}
+function consumptionAt(y){
+  if(!consumptionData.length)return mNum('m2c0',100);
+  const ex=consumptionData.find(r=>Number(r[0])===Number(y));if(ex)return Number(ex[1]);
+  const b=consumptionData.filter(r=>Number(r[0])<y).at(-1),a=consumptionData.find(r=>Number(r[0])>y);
+  if(b&&a)return Number(b[1])+(Number(a[1])-Number(b[1]))*(y-b[0])/(a[0]-b[0]);
+  return b?Number(b[1]):Number(a[1]);
+}
+function runModel2(){
+  if(!m1Rows.length&&!runModel1())return false;
+  const reserve=mNum('m2reserve',5)/100;
+  m2Rows=m1Rows.map(r=>{const cons=consumptionAt(r.year),need=r.pop*cons/1000,target=need*(1+reserve);return {...r,cons,needTon:need,target};});
+  const z=m2Rows[m2Rows.length-1];
+  mEl('m2kpi').innerHTML=
+    `<div class="kpi">Kebutuhan akhir<b>${z.needTon.toFixed(2)} ton/th</b></div>
+     <div class="kpi">Cadangan<b>${(z.target-z.needTon).toFixed(2)} ton</b></div>
+     <div class="kpi">Target produksi<b>${z.target.toFixed(2)} ton/th</b></div>
+     <div class="kpi">Konsumsi akhir<b>${z.cons.toFixed(2)} kg</b></div>
+     <div class="kpi">Cadangan %<b>${(reserve*100).toFixed(2)}%</b></div>`;
+  mEl('m2table').innerHTML='<tr><th>Tahun</th><th>Penduduk</th><th>Konsumsi kg/jiwa</th><th>Kebutuhan ton/th</th><th>Target + cadangan</th></tr>'+
+    m2Rows.map(r=>`<tr><td>${r.year}</td><td>${Math.round(r.pop).toLocaleString('id-ID')}</td><td>${r.cons.toFixed(2)}</td><td>${r.needTon.toFixed(2)}</td><td>${r.target.toFixed(2)}</td></tr>`).join('');
+  renderSvgChart('m2canvas',[
+    {label:'Kebutuhan',data:m2Rows.map(r=>r.needTon),years:m2Rows.map(r=>r.year)},
+    {label:'Target +5%',data:m2Rows.map(r=>r.target),years:m2Rows.map(r=>r.year)}
+  ],'Model 2 — Kebutuhan Beras','Ton/tahun');
+  return true;
+}
+function runModel3(){
+  if(!m2Rows.length&&!runModel2())return false;
+  const delay=Math.max(0,Math.round(mNum('m3delay',2))),initial=mNum('m3p0',28200);
+  m3Rows=m2Rows.map((r,i)=>{const j=i-delay,prod=j>=0?m2Rows[j].target:initial;return {...r,production:prod,gap:prod-r.needTon};});
+  const z=m3Rows[m3Rows.length-1],minGap=Math.min(...m3Rows.map(r=>r.gap));
+  mEl('m3kpi').innerHTML=
+    `<div class="kpi">Produksi akhir<b>${z.production.toFixed(2)} ton/th</b></div>
+     <div class="kpi">Kebutuhan akhir<b>${z.needTon.toFixed(2)} ton/th</b></div>
+     <div class="kpi">Selisih akhir<b>${z.gap.toFixed(2)} ton/th</b></div>
+     <div class="kpi">Gap minimum<b>${minGap.toFixed(2)} ton/th</b></div>
+     <div class="kpi">Delay<b>${delay} tahun</b></div>`;
+  mEl('m3table').innerHTML='<tr><th>Tahun</th><th>Kebutuhan</th><th>Target +5%</th><th>Produksi aktual</th><th>Surplus / Defisit</th></tr>'+
+    m3Rows.map(r=>`<tr><td>${r.year}</td><td>${r.needTon.toFixed(2)}</td><td>${r.target.toFixed(2)}</td><td>${r.production.toFixed(2)}</td><td>${r.gap.toFixed(2)}</td></tr>`).join('');
+  mEl('m3audit').innerHTML=minGap<0?'<div class="warn">⚠ Terdapat periode defisit produksi terhadap kebutuhan.</div>':'<div class="good">✓ Produksi aktual tidak berada di bawah kebutuhan pada periode simulasi.</div>';
+  renderSvgChart('m3canvas',[
+    {label:'Kebutuhan',data:m3Rows.map(r=>r.needTon),years:m3Rows.map(r=>r.year)},
+    {label:'Target +5%',data:m3Rows.map(r=>r.target),years:m3Rows.map(r=>r.year)},
+    {label:'Produksi aktual',data:m3Rows.map(r=>r.production),years:m3Rows.map(r=>r.year)}
+  ],'Model 3 — Produksi Beras + DELAY','Ton/tahun');
+  return true;
+}
+function runAllThreeModels(){
+  if(!runModel1())return;
+  if(!runModel2())return;
+  if(!runModel3())return;
+  alert('RUN SEMUA 3 MODEL selesai.');
+}
+function initThreeModels(){
+  renderConsumption();
+  runModel1();
+  runModel2();
+  runModel3();
+}
+initThreeModels();
+</script>
+<script>
+
+/* ===== POWER SIM FUNCTION LAB ENGINE ===== */
+let fnGraphData = [
+  [2024,94.0],[2026,93.2],[2028,92.8],[2030,92.5],[2032,92.0]
+];
+
+function fnN(id, fallback=0){
+  const e=document.getElementById(id); if(!e) return fallback;
+  const n=Number(String(e.value).replace(',','.'));
+  return Number.isFinite(n)?n:fallback;
+}
+function fnVal(id){return fnN(id,0);}
+function renderFunctionInputs(){
+  const f=document.getElementById('fnType')?.value || 'IF';
+  const a=document.getElementById('fnInputA'), b=document.getElementById('fnInputB'), c=document.getElementById('fnInputC');
+  if(!a||!b||!c)return;
+  const specs={
+    IF:['Kondisi (0/1)','Nilai TRUE','Nilai FALSE'],
+    AND:['Kondisi A (0/1)','Kondisi B (0/1)','Kondisi C (0/1)'],
+    OR:['Kondisi A (0/1)','Kondisi B (0/1)','Kondisi C (0/1)'],
+    NOT:['Kondisi (0/1)','-','-'],
+    FORCASE:['Case','Case 1 value','Default value'],
+    STEP:['Nilai STEP','Start Time','-'],
+    RAMP:['Slope / nilai per tahun','Start Time','-'],
+    PULSE:['Volume','First Time','Interval'],
+    GRAPH:['X / Time','-','-'],
+    DELAY1:['Input','Tau','Initial'],
+    DELAY3:['Input','Tau','Initial'],
+    DELAYP:['Input','Tau','Initial'],
+    ABS:['Nilai','-','-'],EXP:['Nilai','-','-'],LN:['Nilai','-','-'],
+    MIN:['Nilai A','Nilai B','-'],MAX:['Nilai A','Nilai B','-'],
+    ROUND:['Nilai','Digit','-'],INT:['Nilai','-','-'],
+    RANDOM:['Minimum','Maximum','-'],NORMAL:['Mean','SD','-'],UNIFORM:['Minimum','Maximum','-'],
+    TIME:['TIME','-','-']
+  };
+  const x=specs[f]||specs.IF;
+  [a,b,c].forEach((el,i)=>{
+    const lab=el.querySelector('label'), inp=el.querySelector('input');
+    lab.textContent=x[i];
+    inp.disabled=(x[i]==='-');
+  });
+  updateFunctionFormula();
+}
+function boolN(v){return Number(v)!==0;}
+function lookupFunctionGraph(x){
+  if(!fnGraphData.length)return 0;
+  const d=[...fnGraphData].sort((a,b)=>a[0]-b[0]);
+  if(x<=d[0][0])return d[0][1];
+  if(x>=d[d.length-1][0])return d[d.length-1][1];
+  for(let i=1;i<d.length;i++){
+    if(x<=d[i][0]){
+      const [x0,y0]=d[i-1],[x1,y1]=d[i];
+      return y0+(y1-y0)*(x-x0)/(x1-x0);
+    }
+  }
+  return d[d.length-1][1];
+}
+function delayTest(input,tau,initial,order){
+  let x=initial, alpha=Math.min(1,1/Math.max(.000001,tau));
+  for(let i=0;i<Math.max(1,Math.round(order));i++)x+=((input-x)*alpha);
+  return x;
+}
+function functionResult(){
+  const f=document.getElementById('fnType').value;
+  const A=fnVal('fnA'),B=fnVal('fnB'),C=fnVal('fnC');
+  const t=fnVal('fnTime'), start=fnVal('fnStart'), interval=fnVal('fnInterval'), order=Math.max(1,Math.round(fnVal('fnOrder',3)));
+  switch(f){
+    case 'IF':return boolN(A)?B:C;
+    case 'AND':return (boolN(A)&&boolN(B)&&boolN(C))?1:0;
+    case 'OR':return (boolN(A)||boolN(B)||boolN(C))?1:0;
+    case 'NOT':return boolN(A)?0:1;
+    case 'FORCASE':return A===B?C:0;
+    case 'STEP':return t>=start?A:0;
+    case 'RAMP':return t>=start?A*(t-start):0;
+    case 'PULSE':return (t>=start && (interval<=0 || Math.abs(((t-start)/interval)-Math.round((t-start)/interval))<1e-9))?A:0;
+    case 'GRAPH':return lookupFunctionGraph(A);
+    case 'DELAY1':return delayTest(A,B,C,1);
+    case 'DELAY3':return delayTest(A,B,C,3);
+    case 'DELAYP':return delayTest(A,B,C,order);
+    case 'ABS':return Math.abs(A);
+    case 'EXP':return Math.exp(A);
+    case 'LN':return Math.log(A);
+    case 'MIN':return Math.min(A,B);
+    case 'MAX':return Math.max(A,B);
+    case 'ROUND':return Number(A.toFixed(Math.max(0,Math.round(B))));
+    case 'INT':return Math.trunc(A);
+    case 'RANDOM':return A+Math.random()*(B-A);
+    case 'NORMAL':{
+      let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();
+      return A+B*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+    }
+    case 'UNIFORM':return A+Math.random()*(B-A);
+    case 'TIME':return t;
+    default:return 0;
+  }
+}
+function functionFormula(){
+  const f=document.getElementById('fnType').value,A=fnVal('fnA'),B=fnVal('fnB'),C=fnVal('fnC');
+  const t=fnVal('fnTime'),start=fnVal('fnStart'),tau=fnVal('fnInterval'),order=Math.round(fnVal('fnOrder',3));
+  return ({
+    IF:`IF(${A} > 0, ${B}, ${C})`,
+    AND:`AND(${A}, ${B}, ${C})`,OR:`OR(${A}, ${B}, ${C})`,NOT:`NOT(${A})`,
+    FORCASE:`FORCASE(Case=${A}, Case1=${B}, Default=${C})`,
+    STEP:`STEP(${A}, ${start})`,RAMP:`RAMP(${A}, ${start})`,PULSE:`PULSE(${A}, ${start}, ${tau})`,
+    GRAPH:`GRAPH(Time=${A})`,DELAY1:`DELAY1(${A}, ${B}, ${C})`,
+    DELAY3:`DELAY3(${A}, ${B}, ${C})`,DELAYP:`DELAYP(${A}, ${B}, ${C}, Order=${order})`,
+    ABS:`ABS(${A})`,EXP:`EXP(${A})`,LN:`LN(${A})`,MIN:`MIN(${A},${B})`,MAX:`MAX(${A},${B})`,
+    ROUND:`ROUND(${A},${B})`,INT:`INT(${A})`,RANDOM:`RANDOM(${A},${B})`,
+    NORMAL:`NORMAL(${A},${B})`,UNIFORM:`UNIFORM(${A},${B})`,TIME:`TIME=${t}`
+  })[f] || f;
+}
+function updateFunctionFormula(){
+  const e=document.getElementById('fnFormula'); if(e)e.textContent=functionFormula();
+}
+function testPowerSimFunction(){
+  updateFunctionFormula();
+  const result=functionResult();
+  const e=document.getElementById('fnOutput');
+  e.textContent='HASIL = '+(Number.isFinite(result)?result.toLocaleString('id-ID',{maximumFractionDigits:6}):String(result));
+}
+function copyFunctionFormula(){
+  updateFunctionFormula();
+  navigator.clipboard?.writeText(document.getElementById('fnFormula').textContent);
+}
+function resetFunctionTester(){
+  ['fnA','fnB','fnC'].forEach((id,i)=>document.getElementById(id).value=[10,5,100][i]);
+  document.getElementById('fnTime').value=2024;document.getElementById('fnStart').value=2030;
+  document.getElementById('fnInterval').value=2;document.getElementById('fnOrder').value=3;
+  document.getElementById('fnType').value='IF';renderFunctionInputs();
+  document.getElementById('fnOutput').textContent='Hasil akan tampil di sini.';
+}
+function renderFunctionGraph(){
+  const t=document.getElementById('fnGraphTable');if(!t)return;
+  t.innerHTML='<tr><th>Tahun</th><th>Nilai</th><th>Aksi</th></tr>'+
+    fnGraphData.map((r,i)=>`<tr><td><input type="number" value="${r[0]}" onchange="fnGraphData[${i}][0]=Number(this.value)"></td><td><input type="number" step="0.1" value="${r[1]}" onchange="fnGraphData[${i}][1]=Number(this.value)"></td><td><button class="btn danger" onclick="fnGraphData.splice(${i},1);renderFunctionGraph()">×</button></td></tr>`).join('');
+}
+function addFunctionGraphRow(){
+  const last=fnGraphData[fnGraphData.length-1]||[2024,100];
+  fnGraphData.push([last[0]+2,last[1]]);renderFunctionGraph();
+}
+function resetFunctionGraph(){
+  fnGraphData=[[2024,94],[2026,93.2],[2028,92.8],[2030,92.5],[2032,92.0]];
+  renderFunctionGraph();
+}
+function testGraphLookup(){
+  const x=fnN('fnGraphX',2027),y=lookupFunctionGraph(x);
+  document.getElementById('fnGraphResult').value=y;
+  document.getElementById('fnGraphFormula').value=`GRAPH(${x}) = ${y}`;
+}
+function updateModelTimeFormula(){
+  const a=fnN('fnStartTimeModel',2024),b=fnN('fnStopTimeModel',2050),c=fnN('fnTimeStepModel',1),d=fnN('fnCurrentTime',2030);
+  const e=document.getElementById('fnTimeFormula');if(e)e.textContent=`STARTTIME=${a}; STOPTIME=${b}; TIMESTEP=${c}; TIME=${d}`;
+}
+['fnStartTimeModel','fnStopTimeModel','fnTimeStepModel','fnCurrentTime'].forEach(id=>{
+  document.addEventListener('input',ev=>{if(ev.target?.id===id)updateModelTimeFormula();});
+});
+document.addEventListener('input',ev=>{
+  if(['fnA','fnB','fnC','fnTime','fnStart','fnInterval','fnOrder'].includes(ev.target?.id))updateFunctionFormula();
+});
+renderFunctionInputs();
+renderFunctionGraph();
+updateModelTimeFormula();
+
+</script>
+<script>
+
+/* ===== STORY -> MODEL DYNAMIC ENGINE =====
+   Every time the user changes the Story and clicks "Bentuk CLD + SFD",
+   the model is rebuilt from the current story text instead of retaining
+   the original example values.
+*/
+function numFromText(text, regexes, fallback=null){
+  for(const re of regexes){
+    const m=text.match(re);
+    if(m){
+      const n=String(m[1]).replace(/\./g,'').replace(',','.');
+      const v=Number(n);
+      if(Number.isFinite(v)) return v;
+    }
+  }
+  return fallback;
+}
+function pctFromText(text, regexes, fallback=null){
+  return numFromText(text,regexes,fallback);
+}
+function parseStoryModel(){
+  const text=($('storyText')?.value||'').replace(/\s+/g,' ').trim();
+  const m={raw:text};
+
+  m.pop=numFromText(text,[
+    /penduduk(?:\s+sebanyak)?\s*([0-9][0-9.,]*)\s*jiwa/i,
+    /penduduk\s+awal[^0-9]*([0-9][0-9.,]*)/i
+  ],null);
+
+  m.year0=numFromText(text,[
+    /pada\s+tahun\s*(20\d{2})/i,
+    /tahun\s*awal[^0-9]*(20\d{2})/i
+  ],2024);
+
+  m.yearEnd=numFromText(text,[
+    /sampai\s*(?:tahun\s*)?(20\d{2})/i,
+    /hingga\s*(?:tahun\s*)?(20\d{2})/i,
+    /tahun\s*akhir[^0-9]*(20\d{2})/i
+  ],2050);
+
+  m.g1=pctFromText(text,[
+    /(?:tumbuh|pertumbuhan|growth)[^0-9]*([0-9]+(?:[,.][0-9]+)?)\s*%\s*(?:per\s*tahun|\/tahun)/i
+  ],null);
+
+  m.g2=pctFromText(text,[
+    /(?:menjadi|turun(?:kan)?|sebesar)[^0-9]*([0-9]+(?:[,.][0-9]+)?)\s*%\s*(?:per\s*tahun|\/tahun)/i
+  ],null);
+
+  const growthMatches=[...text.matchAll(/([0-9]+(?:[,.][0-9]+)?)\s*%\s*(?:per\s*tahun|\/tahun)/gi)]
+    .map(x=>Number(String(x[1]).replace(',','.')));
+  if(m.g1===null && growthMatches.length)m.g1=growthMatches[0];
+  if(m.g2===null && growthMatches.length>1)m.g2=growthMatches[1];
+
+  m.c0=numFromText(text,[
+    /konsumsi(?:\s+beras)?(?:\s+per\s+kapita)?[^0-9]*([0-9]+(?:[,.][0-9]+)?)/i
+  ],null);
+  m.reserve=pctFromText(text,[/cadangan[^0-9]*([0-9]+(?:[,.][0-9]+)?)\s*%/i],null);
+  m.prod=numFromText(text,[
+    /produksi\s+awal[^0-9]*([0-9][0-9.,]*)\s*ton/i
+  ],null);
+  m.delay=numFromText(text,[
+    /keterlambatan[^0-9]*([0-9]+(?:[,.][0-9]+)?)\s*tahun/i,
+    /delay[^0-9]*([0-9]+(?:[,.][0-9]+)?)\s*tahun/i
+  ],null);
+  m.dt=numFromText(text,[/time\s*step[^0-9]*([0-9]+(?:[,.][0-9]+)?)/i],1);
+
+  m.isRice=/beras|konsumsi\s+per\s+kapita|produksi\s+beras|kebutuhan\s+beras/i.test(text);
+  m.isPopulation=/penduduk|populasi|jiwa/i.test(text);
+
+  return m;
+}
+function fmtStoryNum(v,dec=2){
+  if(v===null||v===undefined||!Number.isFinite(Number(v)))return '—';
+  return Number(v).toLocaleString('id-ID',{maximumFractionDigits:dec});
+}
+function syncStoryToModels(m){
+  // Main simulation parameters
+  if(m.pop!==null)$('pop0').value=m.pop;
+  if(m.year0!==null)$('year0').value=m.year0;
+  if(m.yearEnd!==null)$('year1').value=m.yearEnd;
+  if(m.dt!==null)$('dt').value=m.dt;
+
+  // 3-model parameters
+  if(m.pop!==null)$('m1p0').value=m.pop;
+  if(m.year0!==null)$('m1y0').value=m.year0;
+  if(m.yearEnd!==null)$('m1y1').value=m.yearEnd;
+  if(m.dt!==null)$('m1dt').value=m.dt;
+  if(m.g1!==null)$('m1g1').value=m.g1;
+  if(m.g2!==null)$('m1g2').value=m.g2;
+  if(m.c0!==null)$('m2c0').value=m.c0;
+  if(m.reserve!==null)$('m2reserve').value=m.reserve;
+  if(m.prod!==null)$('m3p0').value=m.prod;
+  if(m.delay!==null)$('m3delay').value=m.delay;
+
+  // Update the visible parameter/function formulas in the main simulation.
+  if(m.g1!==null){
+    $('br0').value=m.g1;
+  }
+  if(m.dt!==null)$('dt').value=m.dt;
+}
+
+function renderDynamicSFD(m){
+  const svg=document.getElementById('sfdSvg'); if(!svg)return;
+  const isRice=!!m.isRice;
+  const pop=fmtStoryNum(m.pop,0);
+  const g1=m.g1!==null?fmtStoryNum(m.g1,2)+'%':'—';
+  const g2=m.g2!==null?fmtStoryNum(m.g2,2)+'%':'—';
+  const reserve=m.reserve!==null?fmtStoryNum(m.reserve,2)+'%':'—';
+  const delay=m.delay!==null?fmtStoryNum(m.delay,0)+' tahun':'—';
+  const prod=m.prod!==null?fmtStoryNum(m.prod,0)+' ton/th':'—';
+
+  const defs=`
+  <defs>
+    <marker id="dynFlowArrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L0,8 L9,4 z" fill="#8ee0aa"/></marker>
+    <marker id="dynInfoArrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L0,8 L9,4 z" fill="#d6b86a"/></marker>
+  </defs>`;
+
+  let body=`
+    <text x="640" y="35" text-anchor="middle" class="sfd-title">${isRice?'PENDUDUK → KEBUTUHAN BERAS → PRODUKSI':'MODEL DINAMIKA PENDUDUK'} — SFD</text>
+
+    <path d="M65 270 C45 270 45 245 65 238 C60 215 92 208 108 225 C125 208 155 224 150 245 C170 252 160 272 142 272 Z" class="sfd-cloud"/>
+    <text x="108" y="300" text-anchor="middle" class="sfd-label">SOURCE</text>
+    <line x1="150" y1="250" x2="330" y2="250" class="sfd-flow" marker-end="url(#dynFlowArrow)"/>
+    <rect x="235" y="233" width="22" height="35" class="sfd-valve"/>
+    <text x="235" y="220" text-anchor="middle" class="sfd-label">${isRice?'PERTUMBUHAN':'PERTAMBAHAN'}</text>
+
+    <rect x="330" y="205" width="330" height="105" rx="5" class="sfd-stock"/>
+    <text x="495" y="245" text-anchor="middle" class="sfd-stock-text">${isRice?'PENDUDUK_AKTUAL':'JUMLAH_PENDUDUK'}</text>
+    <text x="495" y="272" text-anchor="middle" class="sfd-small">${pop} jiwa — Stock / Level</text>
+
+    <circle cx="220" cy="105" r="55" class="sfd-aux"/>
+    <text x="220" y="100" text-anchor="middle" class="sfd-small">IF</text>
+    <text x="220" y="117" text-anchor="middle" class="sfd-small">${g1} → ${g2}</text>
+    <path d="M220 160 C220 180 240 195 300 220" class="sfd-info" marker-end="url(#dynInfoArrow)"/>
+    <text x="220" y="178" text-anchor="middle" class="sfd-delay">IF / TIME</text>`;
+
+  if(isRice){
+    body+=`
+    <circle cx="850" cy="115" r="62" class="sfd-aux"/>
+    <text x="850" y="110" text-anchor="middle" class="sfd-small">GRAPH</text>
+    <text x="850" y="128" text-anchor="middle" class="sfd-small">KONSUMSI</text>
+    <path d="M660 235 C730 205 775 170 805 145" class="sfd-info" marker-end="url(#dynInfoArrow)"/>
+
+    <circle cx="850" cy="280" r="62" class="sfd-aux"/>
+    <text x="850" y="275" text-anchor="middle" class="sfd-small">KEBUTUHAN</text>
+    <text x="850" y="293" text-anchor="middle" class="sfd-small">BERAS</text>
+    <path d="M660 270 C720 275 770 280 785 280" class="sfd-info" marker-end="url(#dynInfoArrow)"/>
+
+    <circle cx="1080" cy="280" r="62" class="sfd-aux"/>
+    <text x="1080" y="275" text-anchor="middle" class="sfd-small">TARGET</text>
+    <text x="1080" y="293" text-anchor="middle" class="sfd-small">+ CADANGAN ${reserve}</text>
+    <path d="M912 280 L1010 280" class="sfd-info" marker-end="url(#dynInfoArrow)"/>
+
+    <circle cx="1080" cy="470" r="68" class="sfd-delay-node"/>
+    <text x="1080" y="465" text-anchor="middle" class="sfd-small">DELAY PRODUKSI</text>
+    <text x="1080" y="483" text-anchor="middle" class="sfd-small">${delay}</text>
+    <path d="M1080 342 L1080 395" class="sfd-info" marker-end="url(#dynInfoArrow)"/>
+
+    <rect x="760" y="420" width="330" height="100" rx="5" class="sfd-stock"/>
+    <text x="925" y="460" text-anchor="middle" class="sfd-stock-text">PRODUKSI_AKTUAL</text>
+    <text x="925" y="487" text-anchor="middle" class="sfd-small">${prod} — Stock/Output</text>
+    <path d="M1080 538 C1080 560 1040 565 925 520" class="sfd-info" marker-end="url(#dynInfoArrow)"/>
+
+    <text x="640" y="625" text-anchor="middle" class="sfd-delay">Target Produksi = Kebutuhan × (1 + ${reserve}) • Realisasi mengikuti DELAY ${delay}</text>`;
+  }else{
+    body+=`
+    <circle cx="880" cy="230" r="65" class="sfd-aux"/>
+    <text x="880" y="225" text-anchor="middle" class="sfd-small">LAJU</text>
+    <text x="880" y="243" text-anchor="middle" class="sfd-small">${g1} / ${g2}</text>
+    <path d="M660 245 C740 235 785 230 815 230" class="sfd-info" marker-end="url(#dynInfoArrow)"/>
+    <text x="640" y="430" text-anchor="middle" class="sfd-delay">IF(Time ≤ 2035, ${g1}, ${g2})</text>`;
+  }
+
+  const legend=`
+    <rect x="70" y="655" width="1140" height="42" rx="8" fill="none" stroke="#244535"/>
+    <rect x="90" y="668" width="20" height="16" class="sfd-stock"/><text x="120" y="682" class="sfd-small">Stock</text>
+    <circle cx="215" cy="676" r="10" class="sfd-aux"/><text x="235" y="682" class="sfd-small">Auxiliary</text>
+    <line x1="330" y1="676" x2="370" y2="676" class="sfd-flow" marker-end="url(#dynFlowArrow)"/><text x="385" y="682" class="sfd-small">Flow</text>
+    <line x1="470" y1="676" x2="510" y2="676" class="sfd-info" marker-end="url(#dynInfoArrow)"/><text x="525" y="682" class="sfd-small">Information link</text>
+    <circle cx="675" cy="676" r="10" class="sfd-delay-node"/><text x="695" y="682" class="sfd-small">Delay</text>`;
+  svg.innerHTML=defs+body+legend;
+}
+
+function renderDynamicStory(m){
+  renderDynamicSFD(m);
+  const title=m.isRice?'MODEL PENDUDUK → KEBUTUHAN BERAS':'MODEL DINAMIKA PENDUDUK';
+  const stockName=m.isRice?'JUMLAH PENDUDUK':'JUMLAH PENDUDUK';
+  const flowName=m.isRice?'PERTUMBUHAN PENDUDUK':'PERTAMBAHAN PENDUDUK';
+  const aux1=m.isRice?'LAJU PERTUMBUHAN':'LAJU PERTUMBUHAN';
+  const aux2=m.isRice?'PERUBAHAN DEMOGRAFI':'PERUBAHAN PENDUDUK';
+  const aux3=m.isRice?'KEBUTUHAN BERAS':'KEPADATAN PENDUDUK';
+  const aux4=m.isRice?'KONSUMSI PER KAPITA':'PARAMETER MODEL';
+
+  $('cldStock').innerHTML=`${stockName}<small>Stock • ${fmtStoryNum(m.pop,0)} jiwa</small>`;
+  $('cldFlow').innerHTML=`${flowName}<small>Flow</small>`;
+  $('cldBirth').innerHTML=`${aux1}<small>Auxiliary${m.g1!==null?' • '+fmtStoryNum(m.g1,2)+'%':''}</small>`;
+  $('cldDeath').innerHTML=`${aux2}<small>Auxiliary${m.g2!==null?' • '+fmtStoryNum(m.g2,2)+'%':''}</small>`;
+  $('cldGrowth').innerHTML=`${aux1}<small>IF / TIME</small>`;
+  $('cldDensity').innerHTML=`${aux3}<small>Auxiliary</small>`;
+  $('cldArea').innerHTML=`${aux4}<small>Parameter</small>`;
+
+  $('sfdStockText').textContent=stockName.replaceAll(' ','_');
+  $('sfdStockValue').textContent=`${fmtStoryNum(m.pop,0)} jiwa — Stock / Level`;
+  $('sfdBirthLabel').textContent=m.isRice?'PERTUMBUHAN PENDUDUK':'PERTAMBAHAN PENDUDUK';
+  $('sfdDeathLabel').textContent=m.isRice?'PERUBAHAN DEMOGRAFI':'PERUBAHAN PENDUDUK';
+  $('sfdBirthRate1').textContent='LAJU';
+  $('sfdBirthRate2').textContent=m.isRice?'PERTUMBUHAN':'PERTUMBUHAN';
+  $('sfdDeathRate1').textContent='LAJU';
+  $('sfdDeathRate2').textContent=m.isRice?'DEMOGRAFI':'PERUBAHAN';
+
+  // Change the static SFD stock value/formula notes too.
+  const eqs=document.querySelectorAll('#sfd .eq');
+  if(eqs[0]){
+    eqs[0].textContent=m.isRice
+      ? `Penduduk → pertumbuhan → penduduk → kebutuhan beras → produksi + cadangan → DELAY ${m.delay??2} tahun`
+      : `Penduduk → pertambahan → penduduk`;
+  }
+  if(eqs[1]){
+    eqs[1].textContent=`Penduduk aktual → DELAY informasi → variabel informasi`;
+  }
+
+  $('storyKpi').innerHTML=[
+    ['Stock',fmtStoryNum(m.pop,0)+' jiwa'],
+    ['Growth 1',m.g1!==null?fmtStoryNum(m.g1,2)+'%/tahun':'—'],
+    ['Growth 2',m.g2!==null?fmtStoryNum(m.g2,2)+'%/tahun':'—'],
+    ['Cadangan',m.reserve!==null?fmtStoryNum(m.reserve,2)+'%':'—'],
+    ['Delay produksi',m.delay!==null?fmtStoryNum(m.delay,2)+' tahun':'—']
+  ].map(x=>`<div class="kpi">${x[0]}<b>${x[1]}</b></div>`).join('');
+
+  const status=$('modelParamStatus');
+  if(status){
+    status.className='good';
+    status.innerHTML=`✓ Model dibentuk dari CERITA TERKINI — ${title}. Parameter 3 Model sudah disinkronkan.`;
+  }
+}
+function detectAnalysisRoute(m){
+  const t=(m.raw||'').toLowerCase();
+  const hasXY=/(hubungan|korelasi|regresi|pengaruh|x\s*[-–]\s*y|variabel x|variabel y)/i.test(t);
+  const hasGroup=/(kelompok|kategori|grup|group|rata[- ]?rata antar|perbedaan antar)/i.test(t);
+  const hasTime=/(tahun|bulan|minggu|hari|periode|time series|deret waktu|tren|trend|proyeksi|forecast|pertumbuhan)/i.test(t);
+  const hasSF=/(stock|flow|stok|arus|akumulasi|dinamika sistem|system dynamics|sfd|cld)/i.test(t);
+  const hasStep=/(mendadak|mulai tahun|mulai pada|perubahan mendadak|kebijakan mulai|step|pulse|lonjakan|shock)/i.test(t);
+  const hasDelay=/(delay|keterlambatan|tertunda|lag|jeda)/i.test(t);
+  const hasIF=/(jika|apabila|bila|ketika|if\b|threshold|ambang|kondisi)/i.test(t);
+  const hasScenario=/(skenario|scenario|kemungkinan|alternatif|baseline|optimis|pesimis|tinggi|rendah)/i.test(t);
+  const routes=[
+    ['Ada hubungan X-Y?','Regression / Correlation',hasXY],
+    ['Ada kelompok?','Comparison / ANOVA',hasGroup],
+    ['Ada data waktu?','Time Series / Projection',hasTime],
+    ['Ada Stock & Flow?','System Dynamics',hasSF||m.isPopulation||m.isRice],
+    ['Ada perubahan mendadak?','STEP / PULSE',hasStep],
+    ['Ada keterlambatan?','DELAY',hasDelay],
+    ['Ada kondisi keputusan?','IF',hasIF],
+    ['Ada beberapa kemungkinan masa depan?','Scenario',hasScenario]
+  ];
+  const chosen=routes.filter(x=>x[2]);
+  return {routes,chosen};
+}
+function renderAnalysisDecision(m){
+  const box=document.getElementById('analysisDecision'); if(!box)return;
+  if(!m.raw){box.innerHTML='Deskripsi kosong — belum ada mesin analisis aktif.';return;}
+  const d=detectAnalysisRoute(m);
+  box.innerHTML='<div class="analysis-route">'+d.routes.map((r,i)=>`<div class="analysis-step ${r[2]?'active':'off'}"><b>${r[0]}</b><span class="arrow">↓</span><span>${r[1]}${r[2]?' ✓':''}</span></div>`).join('')+'</div>';
+}
+
+function buildModelFromCurrentStory(){
+  // Jika sebelumnya di-reset, bangun kembali kerangka Model 7.3 tanpa
+  // membawa hasil/data kasus lama.
+  try{ if(typeof restoreModelsUI==='function') restoreModelsUI(); }catch(e){}
+  const m=parseStoryModel();
+  syncStoryToModels(m);
+  renderDynamicStory(m);
+  renderAnalysisDecision(m);
+  // Keep the function lab and 3-model state synchronized.
+  try{ renderFunctionInputs(); renderFunctionGraph(); updateModelTimeFormula(); }catch(e){}
+  alert('Model berhasil diperbarui dari cerita TERKINI. Buka CLD, SFD, SIMULASI, atau 7.3 untuk melihat perubahan.');
+  return m;
+}
+
+// Replace the old buildModel implementation.
+window.buildModel=buildModelFromCurrentStory;
+
+// Also make "Hapus Cerita" remove stale model state instead of leaving old labels.
+window.clearStory=function(){
+  const svg=document.getElementById('sfdSvg'); if(svg)svg.innerHTML='';
+  $('storyText').value='';
+  $('storyKpi').innerHTML='';
+  const ids=['cldStock','cldFlow','cldBirth','cldDeath','cldGrowth','cldDensity','cldArea'];
+  ids.forEach(id=>{const e=$(id);if(e)e.innerHTML='—<small>Belum ada cerita</small>';});
+  if($('sfdStockText'))$('sfdStockText').textContent='BELUM ADA MODEL';
+  if($('sfdStockValue'))$('sfdStockValue').textContent='Masukkan cerita terlebih dahulu';
+  if($('modelParamStatus'))$('modelParamStatus').innerHTML='○ Menunggu cerita baru.';
+  if($('analysisDecision'))$('analysisDecision').innerHTML='Deskripsi kosong — belum ada mesin analisis aktif.';
+};
+
+
+/* ===== SINGLE ACTIVE CASE / HARD RESET =====
+   Deskripsi adalah single source of truth. Menghapus deskripsi harus
+   menghapus seluruh state hasil/model dari kasus sebelumnya.
+*/
+(function(){
+  // Simpan template asli Model 7.3 agar setelah reset seluruh tampilan
+  // kasus lama benar-benar hilang, lalu dapat dibangun ulang saat
+  // deskripsi baru diproses.
+  const modelsRoot=document.getElementById('models');
+  const modelsTemplate=modelsRoot ? modelsRoot.innerHTML : '';
+
+  function restoreModelsUI(){
+    const root=document.getElementById('models');
+    if(!root || !modelsTemplate)return;
+    root.innerHTML=modelsTemplate;
+  }
+
+  function showModelsWaiting(){
+    const root=document.getElementById('models');
+    if(!root)return;
+    root.innerHTML=`
+      <div class="card span12">
+        <h2>🧩 7.3 MODEL</h2>
+        <div class="good">○ Menunggu DESKRIPSI BARU — belum ada model aktif.</div>
+        <div class="note">Model 7.3 akan dibentuk otomatis setelah Deskripsi baru diproses. Tidak ada data, parameter, hasil, atau bahasa dari kasus sebelumnya yang ditampilkan.</div>
+      </div>`;
+  }
+
+  function clearEl(id, html=''){
+    const e=document.getElementById(id);
+    if(e)e.innerHTML=html;
+  }
+  function clearVal(id,val=''){
+    const e=document.getElementById(id);
+    if(!e)return;
+    if('value' in e)e.value=val;
+    else e.textContent=val;
+  }
+  function clearCaseState(){
+    // Core result state
+    results=[];
+    scenarios={};
+    m1Rows=[]; m2Rows=[]; m3Rows=[];
+    consumptionData=[];
+    fnGraphData=[];
+
+    // Destroy graph/chart state
+    try{ if(graphChart){graphChart.destroy();graphChart=null;} }catch(e){}
+    const gc=document.getElementById('graphCanvas');
+    if(gc){try{gc.getContext('2d').clearRect(0,0,gc.width,gc.height);}catch(e){}}
+
+    // Clear the active case text and all generated outputs.
+    // Model 7.3 is replaced by a clean waiting screen so no old
+    // population/rice wording remains visible after reset.
+    clearVal('storyText','');
+    ['storyKpi','simKpi','simTable','modelAudit','exportText',
+     'm1canvas','m1kpi','m1table','m2canvas','m2kpi','m2table',
+     'm3canvas','m3kpi','m3table','m3audit'].forEach(id=>clearEl(id));
+    showModelsWaiting();
+
+    // Clear dynamic CLD labels
+    ['cldStock','cldFlow','cldBirth','cldDeath','cldGrowth','cldDensity','cldArea']
+      .forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='—<small>Belum ada cerita</small>';});
+
+    // Clear dynamic SFD
+    clearEl('sfdSvg');
+    clearVal('sfdStockText','BELUM ADA MODEL');
+    clearVal('sfdStockValue','Masukkan deskripsi terlebih dahulu');
+    ['sfdBirthLabel','sfdDeathLabel','sfdBirthRate1','sfdBirthRate2','sfdDeathRate1','sfdDeathRate2']
+      .forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
+
+    // Clear 3-model parameter inputs and simulation/function numeric inputs.
+    document.querySelectorAll('input:not([disabled]):not([readonly])').forEach(e=>{
+      if(e.id==='storyText') return;
+      e.value='';
+    });
+
+    // Keep UI selectors usable, but reset to their first option.
+    document.querySelectorAll('select').forEach(e=>{if(e.options.length)e.selectedIndex=0;});
+
+    // Function Lab output and GRAPH lookup table become empty.
+    clearEl('fnOutput','Hasil akan tampil di sini.');
+    clearVal('fnGraphResult','');
+    clearVal('fnGraphFormula','');
+    clearEl('fnGraphTable');
+    clearVal('fnTimeFormula','');
+
+    // Re-render the now-empty data tables.
+    try{renderConsumption();}catch(e){}
+    try{renderFunctionGraph();}catch(e){}
+
+    // Explicit waiting status: no old model is active.
+    const st=document.getElementById('modelParamStatus');
+    if(st){
+      st.className='';
+      st.innerHTML='○ Menunggu DESKRIPSI BARU — belum ada model aktif.';
+    }
+
+    // Return user to the entry point.
+    try{tab('story',document.querySelector('nav button'));}catch(e){}
+  }
+
+  // Both buttons now perform the same complete case reset.
+  // Saat Deskripsi baru dibangun, pulihkan kerangka Model 7.3 lalu
+  // biarkan engine mengisinya dari kasus terbaru.
+  window.restoreModelsUI=restoreModelsUI;
+  window.clearStory=clearCaseState;
+  window.resetAll=clearCaseState;
+})();
+
+</script>
+</body>
+</html>
